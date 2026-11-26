@@ -25,7 +25,7 @@
   if (params.has('room') || params.has('seed')) {
     const g = new HC.Game(Number(params.get('seed')) || 1);
     const room = Number(params.get('room')) || 1;
-    if (room > 1) g.enterRoom(room, false);
+    if (room > 1) { g.enterRoom(room, false); if (room % 10 !== 1) g.banner = null; }
     HC.scenes.set(g);
   } else HC.scenes.set(new HC.scenes.Title());
 

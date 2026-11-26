@@ -13,7 +13,7 @@
   const DOWN_TOP = [
     '............', '...........k', '..........kc', '.......kkkkC', '.....kkHHHgg', '....kHHHHgGg',
     '...kHHHHHHHH', '...kHhHHHHhH', '..kHHhHHHhHH', '..kHhHhhHhhH', '..kHhhsHsshs', '..kHhhsKKKss',
-    '..kHhjsewess', '..kHhjsEEess', '..kHhjsbSsss', '..kHhjjsssSm', '..kHhjjjkSss', '..kHhhjjjkkS',
+    '..kHhjseeess', '..kHhjsEEess', '..kHhjsbSsss', '..kHhjjsssSm', '..kHhjjjkSss', '..kHhhjjjkkS',
     '..kHhhjjkdgD', '.kHhhjkdDDDg', '.kHhhjkdDDDD', '.kHhjjkdDDss', '..kjjkddDDsS', '..kkkddDDDDD',
     '...kfddDDDDD', '..kffddDDDDD', '..kfddDDDDgD',
   ];
@@ -44,7 +44,7 @@
     '..kHhHHhHHHhHhsHhsk.....',
     '..kHhHhHHHhHssssssk.....',
     '..kHhhHHhHhsssKKKsk.....',
-    '..kHhjhHhHhssseWsk......',
+    '..kHhjhHhHhssseesk......',
     '..kHhjhhHhjsssEesk......',
     '..kHhjhhhHjssbSssk......',
     '..kHhjjhhhjjsssmk.......',
