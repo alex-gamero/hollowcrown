@@ -1,0 +1,10 @@
+<!doctype html><html><body style="margin:0;background:#0c0816">
+<canvas id="c" width="400" height="120" style="width:1920px;image-rendering:pixelated"></canvas>
+<script src="../src/engine/core.js"></script><script src="../src/engine/sprites.js"></script><script src="../src/art/characters.js"></script>
+<script>
+const ctx=document.getElementById('c').getContext('2d');ctx.imageSmoothingEnabled=false;
+const A=HC.art,S=HC.sprites;let x=16;
+const row=(list,y)=>{x=16;for(const [s,f] of list){S.draw(ctx,s,x,y,'base',f);S.draw(ctx,s,x,y,'glow',f);x+=s.w+6;}};
+row([[A.princess.down[0]],[A.princess.down[1]],[A.princess.up[0]],[A.princess.up[1]],[A.princess.side[0]],[A.princess.side[1]],[A.princess.side[0],true],[A.hollow[0]],[A.hollow[1]],[A.skitter[0]],[A.skitter[1]],[A.lament[0]],[A.lament[1]]],50);
+row([[A.king[0]],[A.shard],[A.heart],[A.mote],[A.pedestal]],110);
+</script></body></html>
