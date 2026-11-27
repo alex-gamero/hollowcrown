@@ -1,13 +1,11 @@
 <!doctype html><html><head><style>
-@font-face { font-family: 'CinzelDeco'; src: url('fonts/cinzel-decorative-latin-900-normal.woff2') format('woff2'); font-weight: 900; }
-@font-face { font-family: 'Cinzel'; src: url('fonts/cinzel-latin-700-normal.woff2') format('woff2'); font-weight: 700; }
 body { margin: 0; background: #000; }
 </style></head><body>
 <canvas id="banner" width="960" height="300"></canvas><canvas id="cover" width="630" height="500"></canvas><canvas id="bg" width="128" height="128"></canvas>
 <script src="../src/engine/core.js"></script><script src="../src/engine/sprites.js"></script><script src="../src/engine/font.js"></script>
 <script src="../src/art/characters.js"></script><script src="../src/art/monsters.js"></script><script src="../src/art/logo.js"></script>
 <script>
-// Store art for itch.io, drawn at full resolution: smooth light, crisp pixel-art sprites, a real display font.
+// Store art for itch.io, drawn at full resolution: smooth light, crisp pixel-art sprites and the game font.
 const px = (ctx, img, x, y, s) => { ctx.imageSmoothingEnabled = false; ctx.drawImage(img, Math.round(x), Math.round(y), img.width * s, img.height * s); };
 
 function sky(ctx, W, H) {
@@ -59,23 +57,38 @@ function castleCanvas(seed) {
   ctx.fillStyle = '#ff2a3c'; ctx.fillRect(116, 116, 1, 1); ctx.fillRect(122, 116, 1, 1);
   return c;
 }
-function title(ctx, text, x, y, size) {
-  ctx.save();
-  ctx.font = `900 ${size}px CinzelDeco`; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
-  ctx.shadowColor = 'rgba(255,170,60,0.75)'; ctx.shadowBlur = size * 0.45;
-  ctx.lineWidth = Math.max(3, size * 0.08); ctx.strokeStyle = '#2a1206'; ctx.strokeText(text, x, y);
-  const g = ctx.createLinearGradient(0, y - size, 0, y + size * 0.1);
-  g.addColorStop(0, '#fff6c8'); g.addColorStop(0.45, '#ffd650'); g.addColorStop(1, '#c47a1c');
-  ctx.fillStyle = g; ctx.fillText(text, x, y);
+// Title and tagline use the game's own 5x7 pixel font, scaled by whole numbers so every pixel stays sharp.
+function pixelText(text, scale, bands, outline) {
+  const w = HC.font.measure(text) + 4, h = 11;
+  const [c, t] = HC.makeCanvas(w, h);
+  if (outline) [[-1, 0], [1, 0], [0, -1], [0, 1], [1, 1], [2, 2]].forEach(([dx, dy]) => HC.font.draw(t, text, 2 + dx, 2 + dy, outline));
+  const [m, mt] = HC.makeCanvas(w, h, true); HC.font.draw(mt, text, 2, 2, '#ffffff');
+  const id = mt.getImageData(0, 0, w, h);
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const i = (y * w + x) * 4; if (id.data[i + 3] < 128) continue;
+    const col = HC.hex(bands[Math.max(0, Math.min(bands.length - 1, y - 2))]);
+    id.data[i] = col[0]; id.data[i + 1] = col[1]; id.data[i + 2] = col[2]; id.data[i + 3] = 255;
+  }
+  mt.putImageData(id, 0, 0);
+  t.drawImage(m, 0, 0);
+  const [big, bt] = HC.makeCanvas(w * scale, h * scale);
+  bt.imageSmoothingEnabled = false; bt.drawImage(c, 0, 0, w * scale, h * scale);
+  return big;
+}
+function title(ctx, text, cx, y, scale) {
+  const img = pixelText(text, scale, ['#fff6c8', '#ffeaa0', '#ffd650', '#ffd650', '#f0b030', '#d08a20', '#a8601a'], '#2a1206');
+  ctx.save(); ctx.imageSmoothingEnabled = false;
+  ctx.shadowColor = 'rgba(255,170,60,0.7)'; ctx.shadowBlur = scale * 4;
+  ctx.drawImage(img, Math.round(cx - img.width / 2), Math.round(y - img.height / 2));
+  ctx.shadowBlur = 0; ctx.drawImage(img, Math.round(cx - img.width / 2), Math.round(y - img.height / 2));
   ctx.restore();
 }
-function tagline(ctx, text, x, y, size) {
-  ctx.save(); ctx.font = `700 ${size}px Cinzel`; ctx.textAlign = 'center';
-  ctx.shadowColor = 'rgba(0,0,0,0.9)'; ctx.shadowBlur = 6; ctx.fillStyle = '#f0e0c0';
-  ctx.letterSpacing = '2px'; ctx.fillText(text, x, y); ctx.restore();
+function tagline(ctx, text, cx, y, scale) {
+  const img = pixelText(text, scale, Array(7).fill('#f0e0c0'), '#06030a');
+  ctx.save(); ctx.imageSmoothingEnabled = false; ctx.drawImage(img, Math.round(cx - img.width / 2), Math.round(y - img.height / 2)); ctx.restore();
 }
 
-document.fonts.load('900 40px CinzelDeco').then(() => document.fonts.load('700 20px Cinzel')).then(() => {
+Promise.resolve().then(() => {
   // ---- banner 960x300 ----
   {
     const ctx = document.getElementById('banner').getContext('2d'), W = 960, H = 300;
@@ -85,17 +98,14 @@ document.fonts.load('900 40px CinzelDeco').then(() => document.fonts.load('700 2
     haze(ctx, W, 210, 90, 'rgba(10,5,16,0.95)');
     ctx.fillStyle = '#06030a'; for (let x = 0; x < W; x += 2) { const h = 284 + Math.round(Math.sin(x * 0.012) * 6 + Math.sin(x * 0.05) * 2); ctx.fillRect(x, h, 2, 40); }
     const sun = HC.art.sun.glow; px(ctx, sun, 130 - sun.width * 1.5, 140 - sun.height * 1.5, 3);
-    title(ctx, 'HOLLOWCROWN', 545, 132, 66);
-    tagline(ctx, 'A PRINCESS OF LIGHT. A CASTLE THAT FORGOT THE SUN.', 545, 176, 18);
+    title(ctx, 'HOLLOWCROWN', 545, 124, 8);
+    tagline(ctx, 'A PRINCESS OF LIGHT. A CASTLE THAT FORGOT THE SUN.', 545, 182, 2);
   }
-  // ---- cover 630x500: just the sun ----
+  // ---- cover 630x500: just the sun, on a transparent background ----
   {
     const ctx = document.getElementById('cover').getContext('2d'), W = 630, H = 500;
-    const g = ctx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, 420);
-    g.addColorStop(0, '#2a1430'); g.addColorStop(0.6, '#0e0718'); g.addColorStop(1, '#040208');
-    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-    sunGlow(ctx, W / 2, H / 2, 330);
-    const sun = HC.art.sun.glow; px(ctx, sun, W / 2 - sun.width * 3, H / 2 - sun.height * 3, 6);
+    ctx.imageSmoothingEnabled = false;
+    const sun = HC.art.sun.glow; ctx.drawImage(sun, Math.round(W / 2 - sun.width * 3), Math.round(H / 2 - sun.height * 3), sun.width * 6, sun.height * 6);
   }
   // ---- background tile 128x128: dark bricks with golden glints ----
   {

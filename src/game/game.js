@@ -5,6 +5,8 @@
   const I = HC.input;
 
   const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
+  // Halls = brisk adventure, Library = sad royal waltz, Gardens = crooked jig, Crown = darkest candlelight
+  const WING_SONGS = ['halls', 'waltz', 'thorns', 'candles'];
   const FACE_FROM = { S: 'up', N: 'down', E: 'left', W: 'right' };
   const PROJ_LIGHT = { orb: [0.6, 0.4, 1], ink: [0.35, 0.9, 1], thorn: [1, 0.5, 0.3], bolt: [1, 0.95, 0.7] };
   const F_draw = (...a) => HC.font.draw(...a);
@@ -23,7 +25,6 @@
       this.time = 0; this.roomTime = 0;
       this.darkPulse = 0;
       this.banner = null; this.paused = false; this.pauseSel = 0;
-      HC.audio.startDrone(55);
       this.enterRoom(1, false, 'S');
       if (this.run.gift) this.toastMsg('GIFT: ' + this.run.gift.toUpperCase(), '#ffd650', 3);
     }
@@ -47,7 +48,8 @@
       this.roomTime = 0; this.hinted = false; this.nearOffer = null; this.nearShrine = false;
       if (!run.rootTip && this.enemies.some((e) => e instanceof HC.ENEMIES.root)) { run.rootTip = true; this.toastMsg('ROOTLINGS BURROW TOWARD YOU - STEP AWAY FROM THE CRACKS, HIT THEM WHEN THEY RISE', '#d8ff6a', 5); }
       if (!run.houndTip && this.enemies.some((e) => e instanceof HC.ENEMIES.hound)) { run.houndTip = true; this.toastMsg('BONE HOUNDS CROUCH BEFORE THEY BITE - DASH WHEN THEIR EYES FLASH', '#ff8a8a', 5); }
-      HC.audio.setDroneRoot(this.theme.drone);
+      HC.audio.music(room.type === 'secret' ? 'verdant' : room.type === 'boss' ? 'boss' : WING_SONGS[room.wing]);
+      if (room.doors.some((d) => d.secret)) this.toastMsg('A GREEN DOOR... IT WAS NOT HERE BEFORE', '#5aff8a', 3.5);
       if (room.type === 'secret') this.banner = { title: 'THE VERDANT HOLLOW', sub: 'A ROOM THE CASTLE FORGOT', t: 3, color: '#5aff8a' };
       else if (number % 10 === 1) this.banner = { title: this.theme.name, sub: 'WING ' + ROMAN[room.zone % 12], t: 3.2 };
       if (room.type === 'boss') {
@@ -130,14 +132,15 @@
     }
     onPlayerDeath() {
       this.state = 'dying'; this.dieT = 2.6;
-      HC.audio.play('death'); HC.audio.stopDrone();
+      HC.audio.play('death'); HC.audio.music(null);
       this.particles.burst(this.player.x, this.player.y - 14, 60, { color: ['#fff7d0', '#ffe48a', '#ffffff'], speed: 90, life: 1.6, drag: 1.5, up: 10 });
     }
     unlock(reward) {
       if (!this.room.locked) return;
       this.room.locked = false;
       HC.audio.play('unlock');
-      this.room.doors.filter((d) => !d.secret).forEach((d) => { const a = HC.roomGeo.approach(d); this.particles.burst(a.x, a.y - 10, 18, { color: ['#c8b0ff', '#ffffff'], speed: 60, life: 0.7 }); });
+      if (this.room.type === 'boss') HC.audio.music(null);
+      this.room.doors.forEach((d) => { const a = HC.roomGeo.approach(d); this.particles.burst(a.x, a.y - 10, 18, { color: d.secret ? ['#5aff8a', '#ffffff'] : ['#c8b0ff', '#ffffff'], speed: 60, life: 0.7 }); });
       for (let i = 0; i < reward; i++) this.dropPickup('shard', HC.W / 2, (R.floorTop + R.floorBottom) / 2);
       if (this.run.vigil && this.run.hp < this.run.maxHp) { this.run.hp = Math.min(this.run.maxHp, this.run.hp + 0.5); this.floatText(this.player.x, this.player.y - 30, '+1/2', '#ff8a9a'); }
       this.toastMsg('THE DOOR OPENS', '#c8b0ff', 1.4);
@@ -294,7 +297,7 @@
 
       // explain locked doors when the player walks up to one
       if (room.locked && !this.hinted) {
-        const near = room.doors.some((d) => { if (d.secret) return false; const a = HC.roomGeo.approach(d); return HC.dist(p.x, p.y, a.x, a.y) < 30; });
+        const near = room.doors.some((d) => { const a = HC.roomGeo.approach(d); return HC.dist(p.x, p.y, a.x, a.y) < 30; });
         if (near) { this.hinted = true; this.toastMsg(room.type === 'puzzle' ? 'SOLVE THE RUNES TO OPEN THE DOOR' : 'DEFEAT ALL MONSTERS TO OPEN THE DOOR', '#c8b0ff', 2.5); }
       }
 
@@ -396,8 +399,8 @@
       if (room.shrine) L.push({ x: room.shrine.x, y: room.shrine.y - 12, r: room.shrine.used ? 50 : 80, i: 0.65, c: [1, 0.75, 0.45] });
       if (room.keyAltar && !room.keyAltar.taken) L.push({ x: room.keyAltar.x, y: room.keyAltar.y - 20, r: 70, i: 0.7, c: [0.3, 1, 0.5] });
       for (const d of room.doors) {
-        if (d.secret) continue;
         const a = HC.roomGeo.approach(d);
+        if (d.secret) L.push({ x: a.x, y: a.y - 16, r: 44, i: 0.55 + 0.15 * Math.sin(this.time * 2), c: [0.3, 1, 0.45] });
         if (room.locked) L.push({ x: a.x, y: a.y - 14, r: 26, i: 0.3, c: [0.6, 0.4, 1] });
         else if (d.risky) L.push({ x: a.x, y: a.y - 14, r: 34, i: 0.45, c: [1, 0.25, 0.25] });
       }
@@ -510,10 +513,9 @@
     drawDoorMarks(w) {
       const room = this.room;
       for (const d of room.doors) {
-        if (d.secret) continue;
         const a = HC.roomGeo.approach(d);
         if (room.locked) {
-          w.fillStyle = '#3a2470';
+          w.fillStyle = d.secret ? '#1e5a2c' : '#3a2470';
           if (d.wall === 'N') { const yTop = R.top + R.cap + 8 + R.doorW / 2 - 4; for (let i = 6; i < R.doorW; i += 8) w.fillRect(d.x - R.doorW / 2 + i, yTop, 2, R.floorTop - yTop); }
           else if (d.wall === 'S') for (let i = 6; i < R.doorW; i += 8) w.fillRect(d.x - R.doorW / 2 + i, R.floorBottom, 2, R.bottom);
           else { const x0 = d.wall === 'E' ? R.floorRight : 0; for (let j = 4; j < R.doorH; j += 8) w.fillRect(x0, d.y - R.doorH / 2 + j, R.side, 2); }

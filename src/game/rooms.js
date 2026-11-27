@@ -17,7 +17,7 @@
     'LIGHT IS NOT KIND. IT ONLY REMEMBERS.',
     'THE GARDEN GROWS WHAT YOU BURY.',
     'AT THE TOP OF THE SPIRE THE CROWN WAITS FOR A HEAD.',
-    'SOME WALLS ARE ONLY WALLS UNTIL YOU LOOK CLOSER.',
+    'SOME DOORS ARE GREEN. MOST PEOPLE NEVER SEE ONE.',
   ];
 
   // Monsters per wing: [kind, cost]
@@ -181,6 +181,8 @@
     return null;
   }
 
+  const SECRET_CHANCE = 0.08; // per wing: roughly one run in five or six finds it
+
   function generate(run, number, risky, entryWall, special) {
     entryWall = entryWall || 'S';
     const seed = (run.seed * 7919 + number * 104729 + (risky ? 31337 : 0) + entryWall.charCodeAt(0) * 97 + (special ? 555 : 0)) >>> 0;
@@ -223,8 +225,11 @@
       room.doors.push(Object.assign(placeDoor(rng, wall, [room.entryDoor]), { risky: false }));
     }
 
-    // a hidden passage to the green room (at most once per wing)
-    if (!['boss', 'secret', 'intro'].includes(type) && number % 10 >= 3 && !run.secretWings[zone] && rng() < 0.2) {
+    // the green door: each wing rolls once per run (SECRET_CHANCE), and if it wins,
+    // one room between 3 and 8 of that wing gets a second, green door
+    const wingRng = HC.makeRng(((run.seed ^ Math.imul(zone + 1, 0x9e3779b1)) >>> 0) || 1);
+    const wingHasSecret = wingRng() < SECRET_CHANCE, secretPos = 3 + Math.floor(wingRng() * 6);
+    if (!['boss', 'secret', 'intro'].includes(type) && !run.secretWings[zone] && (special === 'forceSecret' || (wingHasSecret && number % 10 === secretPos))) {
       const free = ['N', 'E', 'W'].filter((w) => w !== entryWall && !room.doors.some((d) => d.wall === w));
       if (free.length) { const d = placeDoor(rng, rng.pick(free), room.doors.concat([room.entryDoor])); if (d) room.doors.push(Object.assign(d, { secret: true, risky: false })); }
     }

@@ -269,33 +269,24 @@
 
     // --- doors ---
     room.plaques = [];
-    const frame = hex('#6a5a7e'), frameD = hex('#3e3350');
     const drawDoor = (d, closed) => {
-      if (d.secret) {
-        // a cracked patch of wall: only noticeable up close, in your light
-        const crack = hex('#0a0610'), mossC = hex('#2e6a34');
-        const cx0 = d.wall === 'N' ? d.x : d.wall === 'E' ? HC.W - G.side / 2 : G.side / 2;
-        const cy0 = d.wall === 'N' ? G.top + G.cap + 30 : d.y;
-        let x = cx0, y = cy0 - 14;
-        for (let n = 0; n < 26; n++) { put(x, y, crack); if (n % 5 === 2) put(x + 1, y, mossC); y++; x += rng.int(-1, 1); }
-        x = cx0 - 4; y = cy0 - 4;
-        for (let n = 0; n < 9; n++) { put(x, y, crack); x++; y += rng.int(-1, 1); }
-        return;
-      }
+      // the green door gets mossy green stone and a faint green glow inside
+      const frame = hex(d.secret ? '#3e9a52' : '#6a5a7e'), frameD = hex(d.secret ? '#1e5a2c' : '#3e3350');
+      const inside = (t) => d.secret ? [6 + t * 0.2, 22 + t * 1.1, 10 + t * 0.4] : [5 + t * 0.25, 3 + t * 0.12, 8 + t * 0.35];
       if (d.wall === 'N') {
         const dW = G.doorW, dX = Math.round(d.x - dW / 2), dTop = G.top + G.cap + 8, dBot = G.floorTop;
         for (let y = dTop - 3; y < dBot; y++) for (let x = dX - 3; x < dX + dW + 3; x++) {
           const cx = x - (dX + dW / 2), cy = y - (dTop + dW / 2), upper = y < dTop + dW / 2;
           const outer = upper ? cx * cx + cy * cy <= (dW / 2 + 3) ** 2 : Math.abs(cx) <= dW / 2 + 3;
           const inner = upper ? cx * cx + cy * cy <= (dW / 2) ** 2 : Math.abs(cx) < dW / 2;
-          if (inner) put(x, y, closed ? ((x >> 2) & 1 ? hex('#2a1a12') : hex('#3a2418')) : [5 + (y - dTop) * 0.25, 3 + (y - dTop) * 0.12, 8 + (y - dTop) * 0.35]);
+          if (inner) put(x, y, closed ? ((x >> 2) & 1 ? hex('#2a1a12') : hex('#3a2418')) : inside(y - dTop));
           else if (outer) put(x, y, (x + y) & 3 ? frame : frameD);
         }
         if (!closed) {
           const plW = 22, plX = Math.round(d.x - plW / 2), plY = dTop - 13;
           rect(plX - 1, plY - 1, plW + 2, 11, hex('#1a1424'));
-          rect(plX, plY, plW, 9, d.risky ? hex('#6a1a24') : hex('#8a7340'));
-          room.plaques.push({ x: d.x, y: plY + 1, label: String(room.number + 1).padStart(3, '0'), risky: d.risky });
+          rect(plX, plY, plW, 9, d.secret ? hex('#2e7a40') : hex('#8a7340'));
+          room.plaques.push({ x: d.x, y: plY + 1, label: d.secret ? '???' : String(room.number + 1).padStart(3, '0'), secret: d.secret });
         }
       } else if (d.wall === 'S') {
         for (let y = G.floorBottom; y < HC.H; y++) for (let x = d.x - G.doorW / 2; x < d.x + G.doorW / 2; x++) {
@@ -306,7 +297,7 @@
         const x0 = d.wall === 'E' ? HC.W - G.side : 0;
         for (let y = d.y - G.doorH / 2 - 3; y < d.y + G.doorH / 2 + 3; y++) for (let x = x0; x < x0 + G.side; x++) {
           const edge = y < d.y - G.doorH / 2 || y >= d.y + G.doorH / 2;
-          put(x, y, edge ? ((x + y) & 3 ? frame : frameD) : closed ? ((y >> 2) & 1 ? hex('#2a1a12') : hex('#3a2418')) : [4 + (x - x0) * 0.2, 2, 7]);
+          put(x, y, edge ? ((x + y) & 3 ? frame : frameD) : closed ? ((y >> 2) & 1 ? hex('#2a1a12') : hex('#3a2418')) : d.secret ? [8, 30 + (x - x0) * 1.4, 14] : [4 + (x - x0) * 0.2, 2, 7]);
         }
       }
     };
@@ -314,7 +305,7 @@
     drawDoor(room.entryDoor, true);
 
     ctx.putImageData(img, 0, 0);
-    room.plaques.forEach((p) => HC.font.draw(ctx, p.label, p.x, p.y, p.risky ? '#ffb0b0' : '#2a1c10', { align: 'center' }));
+    room.plaques.forEach((p) => HC.font.draw(ctx, p.label, p.x, p.y, p.secret ? '#c8ffd0' : '#2a1c10', { align: 'center' }));
     return c;
   }
 

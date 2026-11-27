@@ -23,12 +23,12 @@
 
   let ctx = null, master = null, delay = null, current = null, timer = null, muted = false;
   const waves = {};
-  function ensure(existing) {
+  function ensure(existing, dest) {
     if (ctx) return ctx;
     ctx = existing || new (root.AudioContext || root.webkitAudioContext)();
     master = ctx.createGain(); master.gain.value = 0.55;
     const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -18; comp.ratio.value = 4;
-    master.connect(comp); comp.connect(ctx.destination);
+    master.connect(comp); comp.connect(dest || ctx.destination);
     delay = ctx.createDelay(1); delay.delayTime.value = 0.36;
     const fb = ctx.createGain(); fb.gain.value = 0.32;
     const dl = ctx.createGain(); dl.gain.value = 0.35;
@@ -159,17 +159,64 @@
       ],
       drums: { k: 'x..x....', s: '........', h: '........', vol: 0.35 },
     },
+    // Wing III: a crooked 6/8 jig for the overgrown gardens
+    thorns: {
+      name: 'Thornwood Jig', bpm: 100, spb: 3,
+      tracks: [
+        { inst: 'lead', vol: 0.085, send: true, notes:
+          'G4 - Bb4 D5 - C5  Bb4 A4 G4 A4 - -  G4 - Bb4 Eb5 - D5  C5 Bb4 A4 F4 - -  ' +
+          'G4 - Bb4 D5 - G5  F5 Eb5 D5 C5 - D5  A4 - D5 C5 Bb4 A4  G4 - - - . .' },
+        { inst: 'bass', vol: 0.2, notes:
+          'G2 . D3 G2 . D3  G2 . D3 G2 . D3  Eb2 . Bb2 Eb2 . Bb2  F2 . C3 F2 . C3  ' +
+          'G2 . D3 G2 . D3  Eb2 . Bb2 Eb2 . Bb2  D2 . A2 D2 . A2  G2 . D3 G2 . D3' },
+        { inst: 'arp', vol: 0.03, send: true, notes:
+          'G3 Bb3 D4 G3 Bb3 D4  G3 Bb3 D4 G3 Bb3 D4  Eb3 G3 Bb3 Eb3 G3 Bb3  F3 A3 C4 F3 A3 C4  ' +
+          'G3 Bb3 D4 G3 Bb3 D4  Eb3 G3 Bb3 Eb3 G3 Bb3  D3 F#3 A3 D3 F#3 A3  G3 Bb3 D4 G3 Bb3 D4' },
+      ],
+      drums: { k: 'x.....', s: '...x..', h: 'x.xx.x', vol: 0.45 },
+    },
+    // Every boss: fast, heavy, C minor
+    boss: {
+      name: 'The Crown Unbroken', bpm: 150, spb: 2,
+      tracks: [
+        { inst: 'lead', vol: 0.09, send: true, notes:
+          'C5 - C5 Eb5 - G5 - Eb5  F5 - Eb5 - D5 - Eb5 -  C5 - Eb5 - Ab5 - G5 F5  D5 - F5 - Bb5 - Ab5 G5  ' +
+          'C6 - G5 - Eb5 - G5 -  Ab5 G5 F5 Eb5 D5 - Eb5 -  C5 - Eb5 - Ab5 - - -  B4 - D5 - G5 - F5 D5' },
+        { inst: 'bass', vol: 0.22, notes:
+          'C2 C3 C2 C3 C2 C3 C2 C3  C2 C3 C2 C3 C2 C3 C2 C3  Ab1 Ab2 Ab1 Ab2 Ab1 Ab2 Ab1 Ab2  Bb1 Bb2 Bb1 Bb2 Bb1 Bb2 Bb1 Bb2  ' +
+          'C2 C3 C2 C3 C2 C3 C2 C3  C2 C3 C2 C3 C2 C3 C2 C3  Ab1 Ab2 Ab1 Ab2 Ab1 Ab2 Ab1 Ab2  G1 G2 G1 G2 G1 G2 G1 G2' },
+        { inst: 'arp', vol: 0.03, send: true, notes:
+          'C4 Eb4 G4 C5 G4 Eb4 C4 Eb4  C4 Eb4 G4 C5 G4 Eb4 C4 Eb4  Ab3 C4 Eb4 Ab4 Eb4 C4 Ab3 C4  Bb3 D4 F4 Bb4 F4 D4 Bb3 D4  ' +
+          'C4 Eb4 G4 C5 G4 Eb4 C4 Eb4  C4 Eb4 G4 C5 G4 Eb4 C4 Eb4  Ab3 C4 Eb4 Ab4 Eb4 C4 Ab3 C4  G3 B3 D4 G4 D4 B3 G3 B3' },
+      ],
+      drums: { k: 'x.x.x.x.', s: '..x...x.', h: 'xxxxxxxx', vol: 0.55 },
+    },
+    // The green room: soft bells, the only major key in the castle
+    verdant: {
+      name: 'The Verdant Hollow', bpm: 70, spb: 2,
+      tracks: [
+        { inst: 'bell', vol: 0.12, send: true, notes:
+          'B4 - E5 - G#5 - F#5 -  E5 - - - B4 - - -  C#5 - E5 - A5 - G#5 -  F#5 - - - - - - -' },
+        { inst: 'pad', vol: 0.025, notes:
+          'E3+G#3+B3 - - - - - - -  E3+G#3+B3 - - - - - - -  A3+C#4+E4 - - - - - - -  B3+D#4+F#4 - - - - - - -' },
+      ],
+      drums: null,
+    },
   };
+  SONGS.title = { name: 'The Hollow Waltz (music box)', bpm: 84, spb: 2, tracks: SONGS.waltz.tracks.slice(0, 2), drums: null };
   Object.values(SONGS).forEach((s) => { s.parsed = s.tracks.map((t) => Object.assign({}, t, { steps: parse(t.notes) })); s.len = Math.max(...s.parsed.map((t) => t.steps.length)); });
 
-  function play(id, audioCtx) {
-    ensure(audioCtx);
+  function play(id, audioCtx, dest) {
+    ensure(audioCtx, dest);
     if (ctx.state === 'suspended') ctx.resume();
     stop();
     const song = SONGS[id]; if (!song) return;
     const stepDur = 60 / song.bpm / song.spb;
     let step = 0, next = ctx.currentTime + 0.08;
     current = id;
+    master.gain.cancelScheduledValues(ctx.currentTime);
+    master.gain.setValueAtTime(0.0001, ctx.currentTime);
+    master.gain.exponentialRampToValueAtTime(0.55, ctx.currentTime + 0.8);
     const gain = muted ? 0 : 1;
     timer = setInterval(() => {
       while (next < ctx.currentTime + 0.15) {

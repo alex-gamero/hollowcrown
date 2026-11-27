@@ -5,7 +5,7 @@
 # Hollowcrown
 
 **A dark pixel-art roguelite where you are the only light left in a castle that forgot the sun.**
-One door at a time, every room different. Four wings, twelve monsters, four bosses, and a green room the castle forgot.
+One door at a time, every room different. Four wings, twelve monsters, four bosses, and a soundtrack that changes with every wing.
 
 **▶ Play it in your browser:** [lexito-gamerito.itch.io/hollowcrown](https://lexito-gamerito.itch.io/hollowcrown)
 
@@ -14,9 +14,7 @@ One door at a time, every room different. Four wings, twelve monsters, four boss
 ![Canvas](https://img.shields.io/badge/Canvas_2D-1a1424?style=for-the-badge&logo=html5&logoColor=ffd650)
 ![Web Audio](https://img.shields.io/badge/Web_Audio-5A0FC8?style=for-the-badge&logo=audacity&logoColor=white)
 
-[![Hollowcrown banner](docs/banner.png)](https://lexito-gamerito.itch.io/hollowcrown)
-
-![Demo of Hollowcrown: the princess fights the Archivist](docs/demo.gif)
+![Demo of Hollowcrown: the princess clears two rooms in the Gilded Halls](docs/demo.gif)
 
 </div>
 
@@ -28,10 +26,6 @@ One door at a time, every room different. Four wings, twelve monsters, four boss
 | <img src="docs/wing1.png" width="420" alt="Gilded Halls room" /> | <img src="docs/wing2.png" width="420" alt="Drowned Library rune puzzle" /> |
 | **The Bone Garden** | **The Sunless Spire** |
 | <img src="docs/wing3.png" width="420" alt="Bone Garden with a Thorn Bloom and Bone Hound" /> | <img src="docs/wing4.png" width="420" alt="Sunless Spire with Eclipse Eyes firing beams" /> |
-| **The Verdant Hollow (secret)** | **Memory runes** |
-| <img src="docs/secret.png" width="420" alt="Secret green room with a key" /> | <img src="docs/puzzle.png" width="420" alt="Golden memory runes puzzle" /> |
-| **A gift after every death** | **Title** |
-| <img src="docs/gift.png" width="420" alt="Death screen with three gifts" /> | <img src="docs/title.png" width="420" alt="Title screen" /> |
 
 ---
 
@@ -40,7 +34,7 @@ One door at a time, every room different. Four wings, twelve monsters, four boss
 - **Room types:** combat, ambush (most torches out), light-rune and memory-rune puzzles, blessing altars, shrines, and a boss every 10 rooms. Furniture, pits, water and layouts change from room to room.
 - **Your light is your life.** Every hit costs half a heart, and as your hearts drain, your glow shrinks and the dark (and what lives in it) closes in. Motes heal half a heart, and shrines heal a full one.
 - **Slash enemy orbs** to send them back.
-- **Secret rooms:** some walls have cracks you only notice up close, in your light. Behind them is the Verdant Hollow and a green key.
+- **A green door.** Most runs never see one.
 - **Between runs:** shards are kept when you die, and you spend them at the **Altar of Dawn** on permanent upgrades. Every death also offers a **gift** for your next run. If you keep dying, the gift doubles.
 
 ### Wings and monsters
@@ -69,7 +63,7 @@ Beat the Hollow Crown to see the ending, then keep going into an endless, harder
 - **Hand-made pixel art as code.** Every sprite is a text pixel map compiled to canvases at startup (`src/art/`).
 - **Dithered lighting.** A per-pixel pass with ordered (Bayer) dithering turns light falloff into crunchy pixel-art bands (`src/engine/light.js`).
 - **Procedural rooms.** A seeded RNG builds each room's doors, layout, furniture, monsters and puzzles. A flood fill guarantees every exit is reachable (`src/game/rooms.js`).
-- **Synthesized sound.** Every effect and the ambient drone are generated live with the Web Audio API. There are no audio files.
+- **Synthesized music and sound.** A small chiptune sequencer plays an original song for each wing, the title, the bosses and one other room. Songs are written as text patterns and every note and effect is generated live with the Web Audio API. There are no audio files.
 - **`localStorage`** for shards, upgrades, gifts, keys and records.
 
 ### Project structure
@@ -77,13 +71,13 @@ Beat the Hollow Crown to see the ending, then keep going into an endless, harder
 hollowcrown/
 ├── index.html          # Entry point
 ├── src/
-│   ├── engine/         # Core helpers, input, font, audio, lighting, sprite compiler
+│   ├── engine/         # Core helpers, input, font, audio, music, lighting, sprite compiler
 │   ├── art/            # Princess, monsters & bosses, sun emblem, room painter
 │   ├── game/           # Player, enemies, room generation, run logic, menus
 │   └── main.js         # Boot + fixed-step game loop
 ├── assets/             # Icons
 ├── docs/               # README media
-└── tools/sheet.html    # Sprite sheet viewer for art review
+└── tools/              # Sprite sheet viewer, store art generator, music preview page
 ```
 
 ### Run locally
@@ -94,7 +88,7 @@ cd hollowcrown
 python -m http.server 8000
 # open http://localhost:8000
 ```
-For testing, `?seed=123&room=20` jumps to a room, `&entry=E` picks the entry wall, `&secret` opens the green room, and `&debug` shows FPS.
+For testing, `?seed=123&room=20` jumps to a room, `&entry=E` picks the entry wall, `&greendoor` adds the green door, `&secret` opens the room behind it, and `&debug` shows FPS.
 
 ---
 

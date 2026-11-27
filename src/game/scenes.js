@@ -84,6 +84,7 @@
   class Title {
     constructor() {
       this.t = 0; this.sel = 0;
+      HC.audio.music('title');
       this.particles = new HC.Particles();
       this.bg = buildBackdrop();
       this.glowSun = glowDisc(52, 'rgba(255,210,90,0.12)');
@@ -245,7 +246,7 @@
 
   // Beating the Hollow Crown.
   class Victory {
-    constructor(game) { this.g = game; this.t = 0; this.sel = 0; this.particles = new HC.Particles(); HC.save.victories++; HC.meta.save(); HC.audio.play('blessing'); }
+    constructor(game) { this.g = game; this.t = 0; this.sel = 0; this.particles = new HC.Particles(); HC.save.victories++; HC.meta.save(); HC.audio.play('blessing'); HC.audio.music('title'); }
     update(dt) {
       this.t += dt;
       if (Math.random() < 0.8) this.particles.add({ x: Math.random() * HC.W, y: HC.H + 2, vy: -20 - Math.random() * 30, vx: (Math.random() - 0.5) * 10, life: 6, color: Math.random() < 0.5 ? '#ffd650' : '#fff7d0' });
@@ -257,7 +258,7 @@
         const g = this.g;
         if (this.sel === 0) {
           const pd = g.pending; g.enterRoom(pd.number, pd.risky, pd.entry, pd.special); g.fade = 1; g.fadeDir = -1;
-          HC.audio.startDrone(g.theme.drone); HC.scenes.set(g);
+          HC.scenes.set(g);
         } else {
           const run = g.run, sv = HC.save;
           sv.shards += run.shards; sv.best = Math.max(sv.best, run.room); sv.runs++; sv.streak = 0; HC.meta.save();

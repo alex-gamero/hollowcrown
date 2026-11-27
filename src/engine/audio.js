@@ -13,6 +13,17 @@
     master = ctx.createGain(); master.gain.value = 0.7; master.connect(ctx.destination);
     sfxBus = ctx.createGain(); sfxBus.gain.value = 0.8; sfxBus.connect(master);
     musicBus = ctx.createGain(); musicBus.gain.value = 0.35; musicBus.connect(master);
+    songBus = ctx.createGain(); songBus.gain.value = 0.75; songBus.connect(master);
+    if (wanted) startSong(wanted);
+  }
+
+  // Background music: one song per wing, plus title, boss and secret-room themes.
+  let songBus = null, wanted = null;
+  function startSong(id) {
+    wanted = id;
+    if (!ctx || !HC.music) return;
+    if (!id) { HC.music.stop(); return; }
+    if (HC.music.current !== id) HC.music.play(id, ctx, songBus);
   }
 
   function tone(freq, dur, opts) {
@@ -123,6 +134,7 @@
     init,
     play(name) { try { SFX[name] && SFX[name](); } catch (e) { /* audio is best-effort */ } },
     startDrone, stopDrone, setDroneRoot,
+    music: startSong,
     toggleMute() { muted = !muted; if (master) master.gain.value = muted ? 0 : 0.7; return muted; },
     get muted() { return muted; },
   };
