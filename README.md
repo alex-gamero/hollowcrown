@@ -7,10 +7,14 @@
 **A dark pixel-art roguelite where you are the only light left in a castle that forgot the sun.**
 One door at a time, every room different. Four wings, twelve monsters, four bosses, and a green room the castle forgot.
 
+**▶ Play it in your browser:** [lexito-gamerito.itch.io/hollowcrown](https://lexito-gamerito.itch.io/hollowcrown)
+
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
 ![Canvas](https://img.shields.io/badge/Canvas_2D-1a1424?style=for-the-badge&logo=html5&logoColor=ffd650)
 ![Web Audio](https://img.shields.io/badge/Web_Audio-5A0FC8?style=for-the-badge&logo=audacity&logoColor=white)
+
+[![Hollowcrown banner](docs/banner.png)](https://lexito-gamerito.itch.io/hollowcrown)
 
 ![Demo of Hollowcrown: the princess fights the Archivist](docs/demo.gif)
 
@@ -99,4 +103,3 @@ For testing, `?seed=123&room=20` jumps to a room, `&entry=E` picks the entry wal
 - More room types: traps, mimics, shops
 - Relics with active abilities
 - An original soundtrack
-- A playable web build on itch.io
