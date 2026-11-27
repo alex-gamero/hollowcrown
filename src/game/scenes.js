@@ -4,14 +4,14 @@
   const I = HC.input, F = HC.font;
 
   // Dithered glow disc, reused by menus.
+  // Soft round glow (a smooth radial fade, so it never reads as a dotted square).
   function glowDisc(r, color) {
     const [c, ctx] = HC.makeCanvas(r * 2, r * 2);
-    const B = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
-    ctx.fillStyle = color;
-    for (let y = 0; y < r * 2; y++) for (let x = 0; x < r * 2; x++) {
-      const d = Math.hypot(x - r, y - r) / r;
-      if (d < 1 && Math.pow(1 - d, 1.6) * 16 > B[(y & 3) * 4 + (x & 3)] + 0.5) ctx.fillRect(x, y, 1, 1);
-    }
+    const g = ctx.createRadialGradient(r, r, 0, r, r, r);
+    g.addColorStop(0, color.replace(/[\d.]+\)$/, '0.22)'));
+    g.addColorStop(0.45, color.replace(/[\d.]+\)$/, '0.08)'));
+    g.addColorStop(1, color.replace(/[\d.]+\)$/, '0)'));
+    ctx.fillStyle = g; ctx.fillRect(0, 0, r * 2, r * 2);
     return c;
   }
 
