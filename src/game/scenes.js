@@ -90,7 +90,7 @@
       this.glowP = glowDisc(46, 'rgba(255,240,190,0.14)');
       this.eyes = [{ x: 104, y: 214 }, { x: 392, y: 208 }, { x: 160, y: 222 }];
     }
-    items() { return ['BEGIN', 'ALTAR OF DAWN', 'SOUND: ' + (HC.audio.muted ? 'OFF' : 'ON')]; }
+    items() { const a = HC.meta.affordable(); return ['BEGIN', 'ALTAR OF DAWN' + (a ? ' (' + a + ')' : ''), 'SOUND: ' + (HC.audio.muted ? 'OFF' : 'ON')]; }
     update(dt) {
       this.t += dt;
       if (Math.random() < 0.6) this.particles.add({ x: HC.W / 2 + (Math.random() - 0.5) * 50, y: 196 + Math.random() * 30, vx: (Math.random() - 0.5) * 10, vy: -10 - Math.random() * 16, life: 1.5 + Math.random() * 2, color: Math.random() < 0.5 ? '#fff7d0' : '#ffe48a' });
@@ -139,7 +139,7 @@
         x += widths[i] + gap;
       });
       const sv = HC.save;
-      F.draw(ctx, 'SHARDS ' + sv.shards + '   DEEPEST ROOM ' + sv.best + (sv.kingsSlain ? '   KINGS SLAIN ' + sv.kingsSlain : ''), HC.W / 2, 259, '#3a8a9a', { align: 'center' });
+      F.draw(ctx, 'SHARDS ' + sv.shards + '   DEEPEST ROOM ' + sv.best + (sv.kingsSlain ? '   BOSSES SLAIN ' + sv.kingsSlain : '') + (sv.greenKeys ? '   GREEN KEYS ' + sv.greenKeys : ''), HC.W / 2, 259, '#3a8a9a', { align: 'center' });
     }
   }
 
@@ -180,29 +180,101 @@
     }
   }
 
+  // After a death: stats, then a gift for the next run, then where to go.
   class Dead {
-    constructor(stats) { this.s = stats; this.t = 0; }
+    constructor(stats) {
+      this.s = stats; this.t = 0; this.phase = 'stats'; this.sel = 0;
+      this.power = HC.meta.giftPower();
+      this.gifts = HC.GIFTS.slice().sort(() => Math.random() - 0.5).slice(0, 3);
+    }
     update(dt) {
       this.t += dt;
-      if (this.t > 1.2 && (I.pressed('confirm') || I.pressed('attack') || I.pressed('back'))) { HC.audio.play('confirm'); HC.scenes.set(new Title()); }
+      const go = I.pressed('confirm') || I.pressed('attack');
+      if (this.phase === 'stats') { if (this.t > 1.4 && go) { this.phase = 'gift'; this.sel = 1; HC.audio.play('confirm'); } return; }
+      if (this.phase === 'gift') {
+        if (I.pressed('left')) { this.sel = (this.sel + 2) % 3; HC.audio.play('select'); }
+        if (I.pressed('right')) { this.sel = (this.sel + 1) % 3; HC.audio.play('select'); }
+        if (go) {
+          HC.save.pendingGift = { id: this.gifts[this.sel].id, power: this.power }; HC.meta.save();
+          HC.audio.play('blessing'); this.phase = 'menu'; this.sel = 0;
+        }
+        return;
+      }
+      const n = 3;
+      if (I.pressed('up') || I.pressed('left')) { this.sel = (this.sel + n - 1) % n; HC.audio.play('select'); }
+      if (I.pressed('down') || I.pressed('right')) { this.sel = (this.sel + 1) % n; HC.audio.play('select'); }
+      if (go) {
+        HC.audio.play('confirm');
+        if (this.sel === 0) HC.scenes.set(new HC.Game((Math.random() * 1e9) >>> 0));
+        else if (this.sel === 1) HC.scenes.set(new Altar());
+        else HC.scenes.set(new Title());
+      }
     }
     draw(ctx) {
       ctx.fillStyle = '#030206'; ctx.fillRect(0, 0, HC.W, HC.H);
-      const a = Math.min(1, this.t);
-      ctx.globalAlpha = a;
-      F.draw(ctx, 'THE LIGHT FADES', HC.W / 2, 50, '#ffd650', { align: 'center', scale: 2, shadow: '#3a2408' });
+      ctx.globalAlpha = Math.min(1, this.t);
+      F.draw(ctx, 'THE LIGHT FADES', HC.W / 2, 22, '#ffd650', { align: 'center', scale: 2, shadow: '#3a2408' });
       const s = this.s;
-      const lines = [
-        ['ROOM REACHED', s.room], ['MONSTERS BANISHED', s.kills], ['SHARDS GATHERED', '+' + s.shards],
-        ['BLESSINGS', s.blessings || '-'], ['DEEPEST ROOM', s.best],
-      ];
-      lines.forEach(([k, v], i) => {
-        if (this.t < 0.4 + i * 0.25) return;
-        F.draw(ctx, k, 140, 100 + i * 16, '#8a7a9a');
-        F.draw(ctx, String(v), HC.W - 140, 100 + i * 16, '#e8dcc0', { align: 'right' });
+      [['ROOM REACHED', s.room], ['MONSTERS BANISHED', s.kills], ['SHARDS KEPT', '+' + s.shards + '  (TOTAL ' + HC.save.shards + ')'], ['DEEPEST ROOM', s.best]].forEach(([k, v], i) => {
+        if (this.t < 0.3 + i * 0.2) return;
+        F.draw(ctx, k, 130, 52 + i * 12, '#8a7a9a');
+        F.draw(ctx, String(v), HC.W - 130, 52 + i * 12, '#e8dcc0', { align: 'right' });
       });
-      if (s.record && this.t > 1.8 && Math.floor(this.t * 3) % 2) F.draw(ctx, 'A NEW DEPTH!', HC.W / 2, 196, '#ff8a5a', { align: 'center' });
-      if (this.t > 1.2) F.draw(ctx, 'PRESS J TO RISE AGAIN', HC.W / 2, 232, '#6a5a7e', { align: 'center' });
+      if (s.record && Math.floor(this.t * 3) % 2) F.draw(ctx, 'A NEW DEPTH!', HC.W / 2, 104, '#ff8a5a', { align: 'center' });
+      if (this.phase === 'stats') {
+        if (this.t > 1.4) F.draw(ctx, 'PRESS J', HC.W / 2, 240, '#6a5a7e', { align: 'center' });
+      } else {
+        F.draw(ctx, this.phase === 'gift' ? 'THE DAWN OFFERS A GIFT FOR YOUR NEXT RUN' + (this.power > 1 ? ' - X2 (YOU KEEP FALLING)' : '') : 'GIFT CHOSEN', HC.W / 2, 120, '#c8b0ff', { align: 'center' });
+        this.gifts.forEach((g, i) => {
+          const x = HC.W / 2 + (i - 1) * 140, y = 136, on = this.phase === 'gift' ? this.sel === i : HC.save.pendingGift && HC.save.pendingGift.id === g.id;
+          ctx.fillStyle = on ? '#2a2040' : '#120c1c'; ctx.fillRect(x - 62, y, 124, 46);
+          ctx.fillStyle = on ? '#ffd650' : '#3a2a4a'; ctx.fillRect(x - 62, y, 124, 1); ctx.fillRect(x - 62, y + 45, 124, 1); ctx.fillRect(x - 62, y, 1, 46); ctx.fillRect(x + 61, y, 1, 46);
+          F.draw(ctx, g.name, x, y + 10, on ? '#fff7d0' : '#8a7a9a', { align: 'center' });
+          F.draw(ctx, g.desc + (this.power > 1 ? ' X2' : ''), x, y + 26, on ? '#ffd650' : '#5a4a6a', { align: 'center' });
+        });
+        if (this.phase === 'menu') {
+          const aff = HC.meta.affordable();
+          ['RISE AGAIN', 'ALTAR OF DAWN' + (aff ? '  (' + aff + ' UPGRADE' + (aff > 1 ? 'S' : '') + ' READY)' : ''), 'TITLE'].forEach((t, i) => {
+            F.draw(ctx, (this.sel === i ? '> ' : '') + t, HC.W / 2, 200 + i * 14, this.sel === i ? '#fff7d0' : i === 1 && aff ? '#a8f6ff' : '#6a5a7e', { align: 'center' });
+          });
+        } else F.draw(ctx, '< >  CHOOSE    J  CONFIRM', HC.W / 2, 200, '#6a5a7e', { align: 'center' });
+      }
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  // Beating the Hollow Crown.
+  class Victory {
+    constructor(game) { this.g = game; this.t = 0; this.sel = 0; this.particles = new HC.Particles(); HC.save.victories++; HC.meta.save(); HC.audio.play('blessing'); }
+    update(dt) {
+      this.t += dt;
+      if (Math.random() < 0.8) this.particles.add({ x: Math.random() * HC.W, y: HC.H + 2, vy: -20 - Math.random() * 30, vx: (Math.random() - 0.5) * 10, life: 6, color: Math.random() < 0.5 ? '#ffd650' : '#fff7d0' });
+      this.particles.update(dt);
+      if (this.t < 2) return;
+      if (I.pressed('up') || I.pressed('down')) { this.sel ^= 1; HC.audio.play('select'); }
+      if (I.pressed('confirm') || I.pressed('attack')) {
+        HC.audio.play('confirm');
+        const g = this.g;
+        if (this.sel === 0) {
+          const pd = g.pending; g.enterRoom(pd.number, pd.risky, pd.entry, pd.special); g.fade = 1; g.fadeDir = -1;
+          HC.audio.startDrone(g.theme.drone); HC.scenes.set(g);
+        } else {
+          const run = g.run, sv = HC.save;
+          sv.shards += run.shards; sv.best = Math.max(sv.best, run.room); sv.runs++; sv.streak = 0; HC.meta.save();
+          HC.scenes.set(new Title());
+        }
+      }
+    }
+    draw(ctx) {
+      ctx.fillStyle = '#0a0612'; ctx.fillRect(0, 0, HC.W, HC.H);
+      this.particles.draw(ctx, true);
+      const sun = HC.art.sun;
+      HC.sprites.draw(ctx, sun, HC.W / 2, 20 + sun.h, 'glow');
+      ctx.globalAlpha = Math.min(1, this.t);
+      F.draw(ctx, 'THE SUN REMEMBERS', HC.W / 2, 96, '#ffd650', { align: 'center', scale: 2, shadow: '#5a3a10' });
+      F.draw(ctx, 'THE CROWN IS BROKEN. FOR NOW, THE SPIRE IS QUIET.', HC.W / 2, 122, '#a89ab8', { align: 'center' });
+      F.draw(ctx, 'ROOMS ' + this.g.run.room + '   MONSTERS ' + this.g.run.kills + '   SHARDS ' + this.g.run.shards, HC.W / 2, 140, '#e8dcc0', { align: 'center' });
+      if (this.t > 2) ['CONTINUE INTO THE DARK (ENDLESS)', 'RETURN TO THE TITLE'].forEach((t, i) => F.draw(ctx, (this.sel === i ? '> ' : '') + t, HC.W / 2, 186 + i * 14, this.sel === i ? '#fff7d0' : '#6a5a7e', { align: 'center' }));
       ctx.globalAlpha = 1;
     }
   }
@@ -211,16 +283,15 @@
   HC.scenes = {
     set(s) { current = s; if (!(s instanceof HC.Game)) HC.audio.stopDrone(); },
     get current() { return current; },
-    Title, Altar, Dead,
+    Title, Altar, Dead, Victory,
+    victory(game) { this.set(new Victory(game)); },
     endRun(game) {
       const run = game.run, sv = HC.save;
       const record = run.room > sv.best;
+      sv.streak = record ? 0 : sv.streak + 1;
       sv.shards += run.shards; sv.best = Math.max(sv.best, run.room); sv.runs++;
       HC.meta.save();
-      this.set(new Dead({
-        room: run.room, kills: run.kills, shards: run.shards, best: sv.best, record,
-        blessings: run.blessings.length ? run.blessings.length + ' RECEIVED' : null,
-      }));
+      this.set(new Dead({ room: run.room, kills: run.kills, shards: run.shards, best: sv.best, record }));
     },
   };
 })(window.HC);

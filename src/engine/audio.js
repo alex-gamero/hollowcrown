@@ -76,6 +76,16 @@
     death() { [440, 370, 311, 262, 196].forEach((f, i) => tone(f, 0.5, { type: 'triangle', vol: 0.12, delay: i * 0.18 })); },
     select() { tone(660, 0.06, { type: 'square', vol: 0.05, filter: 2000 }); },
     confirm() { tone(523, 0.08, { type: 'square', vol: 0.06, filter: 2400 }); tone(784, 0.12, { type: 'square', vol: 0.06, delay: 0.07, filter: 2400 }); },
+    armor() { tone(90, 0.5, { type: 'square', slide: 1.8, vol: 0.08, filter: 600 }); },
+    slam() { noise(0.4, { freq: 160, sweep: 60, vol: 0.4, type: 'lowpass' }); tone(60, 0.35, { type: 'sine', slide: 0.5, vol: 0.25 }); },
+    splash() { noise(0.35, { freq: 900, sweep: 300, q: 2, vol: 0.18 }); },
+    bark() { tone(260, 0.12, { type: 'sawtooth', slide: 0.6, vol: 0.1, filter: 1200 }); noise(0.1, { freq: 700, vol: 0.15 }); },
+    charge() { tone(200, 1, { type: 'sine', slide: 3, vol: 0.06 }); },
+    beam() { tone(880, 0.35, { type: 'sawtooth', slide: 0.5, vol: 0.08, filter: 2400 }); noise(0.35, { freq: 2000, vol: 0.12 }); },
+    bolt() { tone(660, 0.2, { type: 'triangle', slide: 2, vol: 0.12 }); noise(0.15, { freq: 4000, sweep: 1500, vol: 0.12 }); },
+    charged() { tone(988, 0.12, { type: 'sine', vol: 0.08 }); tone(1319, 0.15, { type: 'sine', vol: 0.06, delay: 0.05 }); },
+    reflect() { tone(1200, 0.1, { type: 'square', vol: 0.06, filter: 3000 }); tone(1800, 0.12, { type: 'sine', vol: 0.06, delay: 0.04 }); },
+    secretDoor() { tone(150, 0.9, { type: 'sine', slide: 2, vol: 0.12 }); [523, 784, 1047].forEach((f, i) => tone(f, 0.5, { type: 'sine', vol: 0.06, delay: 0.3 + i * 0.1 })); },
     whisper() { noise(1.2, { freq: 900, sweep: 300, q: 6, vol: 0.06 }); },
   };
 
@@ -105,6 +115,9 @@
     if (!drone) return;
     drone.oscs.forEach((o, i) => o.frequency.exponentialRampToValueAtTime([root, root * 1.007, root * 1.5][i], ctx.currentTime + 2));
   }
+
+  // musical notes for the memory runes (a rising minor scale)
+  [262, 311, 349, 392, 466, 523].forEach((f, i) => { SFX['note' + (i + 1)] = () => { tone(f * 2, 0.4, { type: 'sine', vol: 0.12 }); tone(f, 0.4, { type: 'triangle', vol: 0.05 }); }; });
 
   HC.audio = {
     init,

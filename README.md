@@ -5,50 +5,56 @@
 # Hollowcrown
 
 **A dark pixel-art roguelite where you are the only light left in a castle that forgot the sun.**
-Push deeper one door at a time, solve rune puzzles, and survive the things that only move in the dark.
+Choose a door, survive what's behind it, never go back. Four wings, twelve monsters, four bosses, and a green room the castle forgot.
 
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
 ![Canvas](https://img.shields.io/badge/Canvas_2D-1a1424?style=for-the-badge&logo=html5&logoColor=ffd650)
 ![Web Audio](https://img.shields.io/badge/Web_Audio-5A0FC8?style=for-the-badge&logo=audacity&logoColor=white)
 
-![Demo of Hollowcrown: the princess fights the Hollow King](docs/demo.gif)
+![Demo of Hollowcrown: the princess fights the Archivist](docs/demo.gif)
 
 </div>
 
 ---
 
 ## Screenshots
-| Title | A Hollow in the dark |
+| The Gilded Halls | The Drowned Library |
 |:---:|:---:|
-| <img src="docs/title.png" width="420" alt="Title screen with the sun emblem and the hollow castle" /> | <img src="docs/combat.png" width="420" alt="The princess slashing a Hollow" /> |
-| **Rune puzzle in the Drowned Library** | **Choosing a blessing** |
-| <img src="docs/puzzle.png" width="420" alt="Rune puzzle room" /> | <img src="docs/blessing.png" width="420" alt="Blessing altar room" /> |
-| **The Hollow King** | |
-| <img src="docs/boss.png" width="420" alt="Boss fight against the Hollow King" /> | |
+| <img src="docs/wing1.png" width="420" alt="Gilded Halls room with a risky door" /> | <img src="docs/wing2.png" width="420" alt="Drowned Library rune puzzle" /> |
+| **The Bone Garden** | **The Sunless Spire** |
+| <img src="docs/wing3.png" width="420" alt="Bone Garden with a Thorn Bloom and Bone Hound" /> | <img src="docs/wing4.png" width="420" alt="Sunless Spire with Eclipse Eyes firing beams" /> |
+| **The Verdant Hollow (secret)** | **Memory runes** |
+| <img src="docs/secret.png" width="420" alt="Secret green room with a key" /> | <img src="docs/puzzle.png" width="420" alt="Golden memory runes puzzle" /> |
+| **A gift after every death** | **Title** |
+| <img src="docs/gift.png" width="420" alt="Death screen with three gifts" /> | <img src="docs/title.png" width="420" alt="Title screen" /> |
 
 ---
 
 ## How it plays
-- **You are the light.** Your glow holds the dark back, and it slowly fades. Monsters drop motes of light, and shrines refill it.
-- **Every door is a new room.** Rooms are generated as you walk through them, so no two runs are the same. When there are two doors, the one under a **red eye** is harder and pays more.
-- **Room types:** combat, ambushes with the torches out, rune puzzles, blessing altars, shrines with lore, and a boss every 10 rooms.
-- **Wings:** The Gilded Halls → The Drowned Library → The Bone Garden.
-- **Death isn't the end.** Shards you gather are kept between runs. Spend them at the **Altar of Dawn** on permanent upgrades.
+- **Every door is a new room.** Doors can be on any wall. You always enter through the wall opposite the one you left by, and there's no way back.
+- **Risky doors** glow red under a skull and say **HARD X2**: a tougher room, double shards, better blessings.
+- **Room types:** combat, ambush (most torches out), light-rune and memory-rune puzzles, blessing altars, shrines, and a boss every 10 rooms. Furniture, pits, water and layouts change from room to room.
+- **Your light is your power.** Hold **J** to gather it and release to fire a **light bolt**. Each bolt spends light, and less light means a smaller glow around you. Light comes back between fights, from motes and at shrines.
+- **Slash enemy orbs** to send them back.
+- **Secret rooms:** some walls have cracks you only notice up close, in your light. Behind them is the Verdant Hollow and a green key.
+- **Between runs:** shards are kept when you die, and you spend them at the **Altar of Dawn** on permanent upgrades. Every death also offers a **gift** for your next run. If you keep dying, the gift doubles.
 
-### Monsters
-| | |
-|---|---|
-| **The Hollow** | Freezes while your light is on it. Rushes you the moment it's in darkness. |
-| **The Skitter** | Waits, then lunges. |
-| **The Lament** | Floats out of reach and weeps orbs of darkness. |
-| **The Hollow King** | Rings of orbs, summons, and charges. He remembers the crown. |
+### Wings and monsters
+| Wing | Monsters | Boss |
+|---|---|---|
+| **I. The Gilded Halls** | **Skitter** lunges · **Hollow Doll** freezes in your light and rushes you in the dark · **Gilded Sentinel** slams shockwaves (stun it with a bolt) | **The Hollow King** |
+| **II. The Drowned Library** | **Leaflings** flutter in flocks · **Ink Lurker** hides as a puddle · **Weeper** hurls ink from afar | **The Archivist** |
+| **III. The Bone Garden** | **Bone Hound** circles and bites · **Rootling** burrows under you · **Thorn Bloom** spits thorns in every direction | **The Gardener** |
+| **IV. The Sunless Spire** | **Shade** is invisible outside your light · **Eclipse Eye** drains your light, then fires a beam · **The Hollow Self** is your reflection | **The Hollow Crown** |
+
+Beat the Hollow Crown to see the ending, then keep going into an endless, harder castle.
 
 ### Controls
 | Action | Keyboard | Gamepad |
 |---|---|---|
 | Move | **WASD** / Arrow keys | Left stick / D-pad |
-| Slash | **J** or Z | X / Square |
+| Slash (tap) / light bolt (hold, release) | **J** or Z | X / Square |
 | Dash | **K**, X, Space or Shift | A / Cross, RB |
 | Use, pray, take a blessing | **E** | Y / Triangle |
 | Pause | **Esc** or P | Start |
@@ -59,9 +65,9 @@ Push deeper one door at a time, solve rune puzzles, and survive the things that 
 - **HTML5 Canvas & vanilla JavaScript.** No frameworks, no build step, no dependencies.
 - **Hand-made pixel art as code.** Every sprite is a text pixel map compiled to canvases at startup (`src/art/`).
 - **Dithered lighting.** A per-pixel pass with ordered (Bayer) dithering turns light falloff into crunchy pixel-art bands (`src/engine/light.js`).
-- **Procedural rooms.** A seeded RNG builds each room's layout, props, monsters and puzzles (`src/game/rooms.js`).
+- **Procedural rooms.** A seeded RNG builds each room's doors, layout, furniture, monsters and puzzles. A flood fill guarantees every exit is reachable (`src/game/rooms.js`).
 - **Synthesized sound.** Every effect and the ambient drone are generated live with the Web Audio API. There are no audio files.
-- **`localStorage`** for shards, upgrades and records.
+- **`localStorage`** for shards, upgrades, gifts, keys and records.
 
 ### Project structure
 ```
@@ -69,7 +75,7 @@ hollowcrown/
 ├── index.html          # Entry point
 ├── src/
 │   ├── engine/         # Core helpers, input, font, audio, lighting, sprite compiler
-│   ├── art/            # Characters, sun emblem, procedural room painter
+│   ├── art/            # Princess, monsters & bosses, sun emblem, room painter
 │   ├── game/           # Player, enemies, room generation, run logic, menus
 │   └── main.js         # Boot + fixed-step game loop
 ├── assets/             # Icons
@@ -85,13 +91,13 @@ cd hollowcrown
 python -m http.server 8000
 # open http://localhost:8000
 ```
-Use `?seed=123&room=10` in the URL to jump to a specific seed and room, and add `&debug` to show FPS.
+For testing, `?seed=123&room=20` jumps to a room, `&entry=E` picks the entry wall, `&secret` opens the green room, and `&debug` shows FPS.
 
 ---
 
 ## Coming Soon
-- Unique bosses for the Drowned Library and the Bone Garden
-- More monsters and room types (traps, secret rooms, mimics)
+- A use for the green keys
+- More room types: traps, mimics, shops
 - Relics with active abilities
 - An original soundtrack
 - A playable web build on itch.io

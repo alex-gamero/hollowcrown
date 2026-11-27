@@ -1,10 +1,12 @@
-<!doctype html><html><body style="margin:0;background:#0c0816">
-<canvas id="c" width="400" height="120" style="width:1920px;image-rendering:pixelated"></canvas>
-<script src="../src/engine/core.js"></script><script src="../src/engine/sprites.js"></script><script src="../src/art/characters.js"></script>
+<!doctype html><html><body style="margin:0;background:#2a2238">
+<canvas id="c" width="480" height="240" style="width:2400px;image-rendering:pixelated"></canvas>
+<script src="../src/engine/core.js"></script><script src="../src/engine/sprites.js"></script>
+<script src="../src/art/characters.js"></script><script src="../src/art/monsters.js"></script>
 <script>
 const ctx=document.getElementById('c').getContext('2d');ctx.imageSmoothingEnabled=false;
-const A=HC.art,S=HC.sprites;let x=16;
-const row=(list,y)=>{x=16;for(const [s,f] of list){S.draw(ctx,s,x,y,'base',f);S.draw(ctx,s,x,y,'glow',f);x+=s.w+6;}};
-row([[A.princess.down[0]],[A.princess.down[1]],[A.princess.up[0]],[A.princess.up[1]],[A.princess.side[0]],[A.princess.side[1]],[A.princess.side[0],true],[A.hollow[0]],[A.hollow[1]],[A.skitter[0]],[A.skitter[1]],[A.lament[0]],[A.lament[1]]],50);
-row([[A.king[0]],[A.shard],[A.heart],[A.mote],[A.pedestal]],110);
+const A=HC.art,S=HC.sprites;let x;
+const row=(list,y)=>{x=8;for(const it of list){const s=it.w?it:it[0];const f=it.flip;S.draw(ctx,s,x+s.w/2,y,'base',f);S.draw(ctx,s,x+s.w/2,y,'glow',f);x+=s.w+5;}};
+row([A.princess.down[0],A.princess.side[0],A.self.down[0],A.self.side[0],A.skitter[0],A.skitter[1],A.doll[0],A.doll[1],A.armor[0],A.armor[1],A.page[0],A.page[1],A.ink[0],A.puddle,A.weeper[0],A.weeper[1]],50);
+row([A.hound[0],A.hound[1],A.root[0],A.root[1],A.mound,A.bloom[0],A.bloom[1],A.shade[0],A.shade[1],A.eye[0],A.eye[1],A.key,A.mask[0]],100);
+row([A.king[0],A.archivist[0],A.gardener[0],A.crown[0]],180);
 </script></body></html>
