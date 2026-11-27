@@ -57,37 +57,13 @@
         g.particles.burst(this.x, this.y - 4, 10, { color: ['#fff7d0', '#ffe48a'], speed: 40, life: 0.4, glow: true });
       }
 
-      // attack: tap to slash; keep holding to gather light, release to fire a bolt
+      // attack
       if (I.pressed('attack') && this.attackCd <= 0 && this.dashT <= 0) {
         this.attackT = 0.22; this.attackCd = 0.34; this.hitSet.clear();
-        this.holding = true; this.hold = 0; this.charge = 0;
         HC.audio.play('slash');
       }
-      if (this.holding) {
-        if (I.held('attack')) {
-          this.hold += dt;
-          if (this.hold > 0.3) {
-            const before = this.charge;
-            this.charge = Math.min(1, (this.hold - 0.3) / 0.4);
-            if (this.charge >= 1 && before < 1) HC.audio.play(run.light >= run.boltCost ? 'charged' : 'runeBad');
-            if (Math.random() < 0.6) {
-              const a = Math.random() * Math.PI * 2, r = 16 + Math.random() * 6;
-              g.particles.add({ x: this.x + Math.cos(a) * r, y: this.y - 12 + Math.sin(a) * r, vx: -Math.cos(a) * 50, vy: -Math.sin(a) * 50, life: 0.3, color: run.light >= run.boltCost ? '#fff3a6' : '#6a5a7e' });
-            }
-          }
-        } else {
-          if (this.charge >= 1) {
-            if (run.light >= run.boltCost) {
-              run.light -= run.boltCost;
-              const d = DIRS[this.facing];
-              g.shootBolt(this.x + d[0] * 8, this.y - 12 + d[1] * 6, d[0], d[1]);
-            } else g.toastMsg('NOT ENOUGH LIGHT', '#ff8a5a');
-          }
-          this.holding = false; this.hold = 0; this.charge = 0;
-        }
-      }
 
-      let speed = run.speed * (this.attackT > 0 ? 0.45 : this.charge > 0 ? 0.55 : 1) * (g.inWater(this) ? 0.6 : 1);
+      let speed = run.speed * (this.attackT > 0 ? 0.45 : 1) * (g.inWater(this) ? 0.6 : 1);
       if (this.dashT > 0) {
         this.dashT -= dt;
         this.vx = this.dashDir[0] * 280; this.vy = this.dashDir[1] * 280;
@@ -137,7 +113,7 @@
       if (this.invuln > 0 || this.dead) return false;
       const run = g.run;
       if (g.state !== 'play') return false;
-      run.hp--;
+      run.hp = Math.max(0, run.hp - 0.5); // every hit costs half a heart
       this.invuln = 1.1; this.hurtFlash = 0.15;
       const kx = this.x - fromX, ky = this.y - fromY, kl = Math.hypot(kx, ky) || 1;
       g.moveEntity(this, (kx / kl) * 14, (ky / kl) * 14, true);
@@ -162,8 +138,9 @@
     }
 
     lightRadius(run) {
-      const f = run.light / run.lightMax;
-      return (70 + 85 * f) * run.radiusMul;
+      // your light is your life: it dims as you take damage
+      const f = Math.max(0, run.hp / run.maxHp);
+      return (62 + 98 * f) * run.radiusMul;
     }
 
     draw(ctx) {
@@ -184,13 +161,6 @@
       if (!this.dead && !(this.invuln > 0 && this.dashT <= 0 && Math.floor(this.invuln * 20) % 2)) {
         const bob = this.moving && this.frame ? -1 : 0;
         HC.sprites.draw(ctx, this.sprite(), this.x, this.y + bob, 'base', this.facing === 'left', 0.55);
-      }
-      if (this.charge > 0) {
-        const r = 6 + this.charge * 8, full = this.charge >= 1 && run.light >= run.boltCost;
-        for (let a = 0; a < 18; a++) {
-          const ang = (a / 18) * Math.PI * 2 + t * 4;
-          if (Math.random() < 0.7) { ctx.fillStyle = full ? (a % 2 ? '#ffffff' : '#ffd650') : '#8a7a9a'; ctx.fillRect(Math.round(this.x + Math.cos(ang) * r), Math.round(this.y - 12 + Math.sin(ang) * r * 0.8), 1, 1); }
-        }
       }
       if (this.attackT > 0) {
         const p = 1 - this.attackT / 0.22;

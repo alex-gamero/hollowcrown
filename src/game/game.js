@@ -61,12 +61,6 @@
       this.enemies.push(this.makeEnemy(kind, x, y, tier));
     }
     shoot(x, y, vx, vy, kind) { this.projectiles.push({ x, y, vx, vy, kind: kind || 'orb', friendly: false, life: 6, dead: false, t: 0, damage: 1 }); }
-    shootBolt(x, y, dx, dy) {
-      const run = this.run;
-      this.projectiles.push({ x, y, vx: dx * 270, vy: dy * 270, kind: 'bolt', friendly: true, life: 2, dead: false, t: 0, damage: run.damage + 1, pierce: run.boltPierce, hit: new Set() });
-      HC.audio.play('bolt'); this.shake(2, 0.1);
-      this.particles.burst(x, y, 12, { color: ['#ffffff', '#fff3a6', '#ffd650'], speed: 80, life: 0.35 });
-    }
     addWave(x, y, max, speed) { this.waves.push({ x, y, r: 4, max, speed, hit: false }); }
     toastMsg(text, color, t) { this.toast = { text, color: color || '#ffd650', t: t || 2 }; }
     floatText(x, y, text, color) { this.floaters.push({ x, y, text, color, t: 0.9 }); }
@@ -124,7 +118,7 @@
       run.kills++;
       const shards = e.isBoss ? 25 : Math.random() < 0.7 ? 1 + (this.room.risky ? 1 : 0) : 0;
       for (let i = 0; i < shards; i++) this.dropPickup('shard', e.x, e.y - 8);
-      if (Math.random() < 0.45 || e.isBoss) this.dropPickup('mote', e.x, e.y - 8);
+      if (Math.random() < 0.22 || e.isBoss) this.dropPickup('mote', e.x, e.y - 8);
       if (Math.random() < (this.room.risky ? 0.1 : 0.05) || e.isBoss) this.dropPickup('heart', e.x, e.y - 8);
       if (e.isBoss) { HC.save.kingsSlain++; HC.meta.save(); }
     }
@@ -143,7 +137,8 @@
       HC.audio.play('unlock');
       this.room.doors.filter((d) => !d.secret).forEach((d) => { const a = HC.roomGeo.approach(d); this.particles.burst(a.x, a.y - 10, 18, { color: ['#c8b0ff', '#ffffff'], speed: 60, life: 0.7 }); });
       for (let i = 0; i < reward; i++) this.dropPickup('shard', HC.W / 2, (R.floorTop + R.floorBottom) / 2);
-      this.toastMsg('THE DOORS OPEN', '#c8b0ff', 1.4);
+      if (this.run.vigil && this.run.hp < this.run.maxHp) { this.run.hp = Math.min(this.run.maxHp, this.run.hp + 0.5); this.floatText(this.player.x, this.player.y - 30, '+1/2', '#ff8a9a'); }
+      this.toastMsg('THE DOOR OPENS', '#c8b0ff', 1.4);
     }
 
     // ---------------- update ----------------
@@ -179,7 +174,6 @@
 
       if (this.fadeDir <= 0) p.update(dt, this);
       const danger = this.enemies.some((e) => !e.dead);
-      if (!danger && !p.holding) run.light = Math.min(run.lightMax, run.light + run.lightRegen * dt);
 
       this.computeLights();
       for (const e of this.enemies) if (!e.dead) e.update(dt, this);
@@ -273,7 +267,10 @@
             run.shards += n; HC.audio.play('shard');
             this.floatText(k.x, k.y - 6, '+' + n, '#a8f6ff');
             if (!run.shardTip && HC.save.runs < 3) { run.shardTip = true; this.toastMsg('SHARDS STAY WITH YOU AFTER DEATH - SPEND THEM AT THE ALTAR OF DAWN', '#a8f6ff', 4.5); }
-          } else if (k.kind === 'mote') { run.light = Math.min(run.lightMax, run.light + 15); HC.audio.play('pickup'); this.floatText(k.x, k.y - 6, '+LIGHT', '#fff3a6'); }
+          } else if (k.kind === 'mote') {
+            if (run.hp >= run.maxHp) continue;
+            run.hp = Math.min(run.maxHp, run.hp + 0.5); HC.audio.play('pickup'); this.floatText(k.x, k.y - 6, '+1/2', '#ff8a9a');
+          }
           else if (k.kind === 'heart') {
             if (run.hp >= run.maxHp) continue;
             run.hp++; HC.audio.play('pickup');
@@ -296,7 +293,7 @@
       // explain locked doors when the player walks up to one
       if (room.locked && !this.hinted) {
         const near = room.doors.some((d) => { if (d.secret) return false; const a = HC.roomGeo.approach(d); return HC.dist(p.x, p.y, a.x, a.y) < 30; });
-        if (near) { this.hinted = true; this.toastMsg(room.type === 'puzzle' ? 'SOLVE THE RUNES TO OPEN THE DOORS' : 'DEFEAT ALL MONSTERS TO OPEN THE DOORS', '#c8b0ff', 2.5); }
+        if (near) { this.hinted = true; this.toastMsg(room.type === 'puzzle' ? 'SOLVE THE RUNES TO OPEN THE DOOR' : 'DEFEAT ALL MONSTERS TO OPEN THE DOOR', '#c8b0ff', 2.5); }
       }
 
       if (room.type === 'puzzle' && room.puzzle) this.updatePuzzle(dt);
@@ -323,10 +320,10 @@
         this.nearShrine = HC.dist(p.x, p.y, s.x, s.y + 10) < 30;
         if (this.nearShrine && !s.used && I.pressed('interact')) {
           s.used = true;
-          run.light = run.lightMax; run.hp = Math.min(run.maxHp, run.hp + 1);
+          run.hp = Math.min(run.maxHp, run.hp + 1);
           HC.audio.play('blessing');
           this.particles.burst(s.x, s.y - 14, 36, { color: ['#ffe48a', '#ffffff'], speed: 70, life: 1 });
-          this.toastMsg('YOUR LIGHT IS RESTORED');
+          this.toastMsg('YOUR LIGHT GROWS STRONGER');
         }
       }
 
@@ -603,20 +600,13 @@
       ctx.fillStyle = '#0b0812'; ctx.fillRect(0, 0, HC.W, HC.HUD_H - 1);
       ctx.fillStyle = '#2a2238'; ctx.fillRect(0, HC.HUD_H - 1, HC.W, 1);
       for (let i = 0; i < run.maxHp; i++) {
-        const full = i < run.hp, beat = full && run.hp === 1 && Math.sin(this.time * 8) > 0 ? -1 : 0;
-        HC.sprites.draw(ctx, HC.art.heart, 10 + i * 9, 13 + beat, 'glow', false, full ? 1 : 0.22);
+        const fill = HC.clamp(run.hp - i, 0, 1), beat = run.hp <= 1 && fill > 0 && Math.sin(this.time * 8) > 0 ? -1 : 0;
+        const hx = 10 + i * 9, hy = 13 + beat, s = HC.art.heart;
+        HC.sprites.draw(ctx, s, hx, hy, 'glow', false, 0.22);
+        if (fill >= 1) HC.sprites.draw(ctx, s, hx, hy, 'glow');
+        else if (fill > 0) ctx.drawImage(s.glow, 0, 0, Math.ceil(s.w / 2), s.h, Math.round(hx - s.w / 2), Math.round(hy - s.h), Math.ceil(s.w / 2), s.h);
       }
-      let x = 14 + run.maxHp * 9;
-      HC.sprites.draw(ctx, HC.art.mote, x, 11, 'glow');
-      x += 5;
-      const f = run.light / run.lightMax, bw = 60, can = run.light >= run.boltCost;
-      ctx.fillStyle = '#1a1424'; ctx.fillRect(x, 6, bw + 2, 6);
-      ctx.fillStyle = '#2a2238'; ctx.fillRect(x + 1, 7, bw, 4);
-      ctx.fillStyle = can ? '#f0a830' : '#8a5a3a'; ctx.fillRect(x + 1, 7, Math.round(bw * f), 4);
-      ctx.fillStyle = can ? '#fff0a0' : '#aa7a5a'; ctx.fillRect(x + 1, 7, Math.round(bw * f), 1);
-      ctx.fillStyle = '#0b0812';
-      for (let k = run.boltCost; k < run.lightMax; k += run.boltCost) ctx.fillRect(x + 1 + Math.round((k / run.lightMax) * bw), 7, 1, 4); // one notch per bolt
-      x += bw + 10;
+      let x = 12 + run.maxHp * 9;
       HC.sprites.draw(ctx, HC.art.shard, x + 2, 12, 'glow');
       F_draw(ctx, String(run.shards), x + 8, 5, '#a8f6ff');
       x += 20 + HC.font.measure(String(run.shards));
@@ -645,7 +635,7 @@
       let msg = null, alpha = 1;
       const p = this.player;
       if (this.nearOffer && room.type === 'treasure') msg = this.nearOffer.blessing.name.toUpperCase() + ' - ' + this.nearOffer.blessing.desc.toUpperCase() + '   [E] TAKE';
-      else if (this.nearShrine && room.shrine && !room.shrine.used) msg = 'PRAY AT THE SHRINE: FULL LIGHT, +1 HEART   [E]';
+      else if (this.nearShrine && room.shrine && !room.shrine.used) msg = 'PRAY AT THE SHRINE: +1 HEART   [E]';
       else if (room.keyAltar && !room.keyAltar.taken && HC.dist(p.x, p.y, room.keyAltar.x, room.keyAltar.y) < 32) msg = 'TAKE THE GREEN KEY   [E]';
       else if (this.nearShrine && room.text) msg = room.text;
       else if (room.text && this.roomTime < 5.5) { msg = room.text; alpha = Math.min(1, (5.5 - this.roomTime) * 1.5, this.roomTime * 2); }
@@ -659,7 +649,7 @@
       }
       if (room.type === 'intro' && this.roomTime < 15) {
         ctx.globalAlpha = Math.min(1, (15 - this.roomTime) / 2);
-        ['WASD MOVE   J SLASH   HOLD J: LIGHT BOLT   K DASH   E USE', 'SLASH ENEMY ORBS TO SEND THEM BACK'].forEach((l, i) => {
+        ['WASD MOVE   J SLASH   K DASH   E USE', 'YOUR LIGHT IS YOUR LIFE - SLASH ORBS TO SEND THEM BACK'].forEach((l, i) => {
           const mw = HC.font.measure(l) + 12;
           ctx.fillStyle = 'rgba(5,3,10,0.7)'; ctx.fillRect(HC.W / 2 - mw / 2, HC.H - 34 + i * 12, mw, 11);
           F_draw(ctx, l, HC.W / 2, HC.H - 32 + i * 12, i ? '#c8b0ff' : '#a89ab8', { align: 'center' });
@@ -689,7 +679,7 @@
         ['RESUME', 'ABANDON RUN'].forEach((t, i) => F_draw(ctx, (this.pauseSel === i ? '> ' : '  ') + t, HC.W / 2, 104 + i * 14, this.pauseSel === i ? '#fff7d0' : '#7a6a8a', { align: 'center' }));
         const r = this.run;
         [
-          'BLADE ' + r.damage + '   BOLT ' + (r.damage + 1) + ' (COSTS ' + r.boltCost + ' LIGHT)',
+          'BLADE DAMAGE ' + r.damage + '   HEARTS ' + r.hp + '/' + r.maxHp,
           r.blessings.length ? 'BLESSINGS: ' + r.blessings.map((id) => HC.BLESSINGS.find((b) => b.id === id).name).join(', ') : 'NO BLESSINGS YET',
           r.gift ? 'GIFT: ' + r.gift : '',
         ].forEach((l, i) => l && F_draw(ctx, l, HC.W / 2, 160 + i * 14, '#a89ab8', { align: 'center' }));

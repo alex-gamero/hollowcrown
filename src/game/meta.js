@@ -10,7 +10,7 @@
 
   HC.UPGRADES = [
     { id: 'heart', name: 'Vessel of Dawn', desc: '+1 max heart', costs: [30, 70, 130] },
-    { id: 'light', name: 'Kindled Soul', desc: '+20% light and radius', costs: [25, 60, 110] },
+    { id: 'light', name: 'Kindled Soul', desc: '+15% light radius', costs: [25, 60, 110] },
     { id: 'blade', name: 'Sunforged Edge', desc: '+1 blade damage', costs: [45, 110] },
     { id: 'veil', name: 'Silken Veil', desc: 'Dash recovers 20% faster', costs: [30, 80] },
   ];
@@ -19,12 +19,12 @@
     { id: 'heart', name: 'Radiant Heart', desc: '+1 max heart, heal 1', apply: (r) => { r.maxHp++; r.hp = Math.min(r.maxHp, r.hp + 1); } },
     { id: 'blade', name: 'Sunblade', desc: '+1 blade damage', apply: (r) => { r.damage++; } },
     { id: 'veil', name: 'Swift Veil', desc: 'Dash recovers 30% faster', apply: (r) => { r.dashCd *= 0.7; } },
-    { id: 'flame', name: 'Everflame', desc: '+30 max light, faster refill', apply: (r) => { r.lightMax += 30; r.light += 30; r.lightRegen *= 1.5; } },
+    { id: 'radiance', name: 'Radiance', desc: '+25% light radius', apply: (r) => { r.radiusMul += 0.25; } },
     { id: 'halo', name: 'Wide Halo', desc: 'Bigger slash', apply: (r) => { r.reach *= 1.3; } },
-    { id: 'mend', name: 'Mending Light', desc: 'Heal to full', apply: (r) => { r.hp = r.maxHp; r.light = r.lightMax; } },
+    { id: 'mend', name: 'Mending Light', desc: 'Heal to full', apply: (r) => { r.hp = r.maxHp; } },
     { id: 'swift', name: 'Featherstep', desc: '+12% move speed', apply: (r) => { r.speed *= 1.12; } },
     { id: 'thorns', name: 'Thorned Crown', desc: 'Getting hit burns nearby foes', apply: (r) => { r.thorns = (r.thorns || 0) + 2; } },
-    { id: 'lance', name: 'Sunlance', desc: 'Light bolts pierce and cost less', apply: (r) => { r.boltPierce = true; r.boltCost = Math.max(10, r.boltCost - 6); } },
+    { id: 'vigil', name: 'Vigil', desc: 'Heal half a heart per cleared room', apply: (r) => { r.vigil = true; } },
     { id: 'mirror', name: 'Mirrored Edge', desc: 'Reflected orbs hit twice as hard', apply: (r) => { r.reflectMul = (r.reflectMul || 1) * 2; } },
   ];
 
@@ -32,7 +32,7 @@
   HC.GIFTS = [
     { id: 'heart', name: 'Ember of Dawn', desc: '+1 max heart', apply: (r, p) => { r.maxHp += p; r.hp += p; } },
     { id: 'bless', name: 'Bright Start', desc: 'Start with a blessing', apply: (r, p) => { for (let i = 0; i < p; i++) { const b = HC.BLESSINGS[Math.floor(Math.random() * HC.BLESSINGS.length)]; b.apply(r); r.blessings.push(b.id); } } },
-    { id: 'light', name: 'Deep Light', desc: '+40 max light', apply: (r, p) => { r.lightMax += 40 * p; r.light = r.lightMax; } },
+    { id: 'light', name: 'Bright Soul', desc: '+25% light radius', apply: (r, p) => { r.radiusMul += 0.25 * p; } },
     { id: 'pouch', name: 'Shard Pouch', desc: '+50% shards', apply: (r, p) => { r.shardMul += 0.5 * p; } },
     { id: 'wind', name: 'Second Wind', desc: 'Revive once', apply: (r, p) => { r.revives += p; } },
     { id: 'edge', name: 'Keen Edge', desc: '+1 blade damage', apply: (r, p) => { r.damage += p; } },
@@ -62,12 +62,11 @@
     // Fresh run stats, including permanent upgrades and any pending death gift.
     newRun(seed) {
       const u = HC.save.up;
-      const lightMax = 100 * (1 + 0.2 * u.light);
       const run = {
         seed, room: 0, hp: 3 + u.heart, maxHp: 3 + u.heart,
-        light: lightMax, lightMax, lightRegen: 7, radiusMul: 1 + 0.12 * u.light,
+        radiusMul: 1 + 0.15 * u.light,
         damage: 1 + u.blade, dashCd: 0.6 * Math.pow(0.8, u.veil), reach: 1, speed: 92,
-        boltCost: 20, boltPierce: false, reflectMul: 1,
+        reflectMul: 1,
         shards: 0, shardMul: 1, kills: 0, blessings: [], thorns: 0, revives: 0, keys: 0,
         sinceTreasure: 0, secretWings: {}, gift: null,
       };

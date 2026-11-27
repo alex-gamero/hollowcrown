@@ -5,7 +5,7 @@
 # Hollowcrown
 
 **A dark pixel-art roguelite where you are the only light left in a castle that forgot the sun.**
-Choose a door, survive what's behind it, never go back. Four wings, twelve monsters, four bosses, and a green room the castle forgot.
+One door at a time, every room different. Four wings, twelve monsters, four bosses, and a green room the castle forgot.
 
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
@@ -21,7 +21,7 @@ Choose a door, survive what's behind it, never go back. Four wings, twelve monst
 ## Screenshots
 | The Gilded Halls | The Drowned Library |
 |:---:|:---:|
-| <img src="docs/wing1.png" width="420" alt="Gilded Halls room with a risky door" /> | <img src="docs/wing2.png" width="420" alt="Drowned Library rune puzzle" /> |
+| <img src="docs/wing1.png" width="420" alt="Gilded Halls room" /> | <img src="docs/wing2.png" width="420" alt="Drowned Library rune puzzle" /> |
 | **The Bone Garden** | **The Sunless Spire** |
 | <img src="docs/wing3.png" width="420" alt="Bone Garden with a Thorn Bloom and Bone Hound" /> | <img src="docs/wing4.png" width="420" alt="Sunless Spire with Eclipse Eyes firing beams" /> |
 | **The Verdant Hollow (secret)** | **Memory runes** |
@@ -32,10 +32,9 @@ Choose a door, survive what's behind it, never go back. Four wings, twelve monst
 ---
 
 ## How it plays
-- **Every door is a new room.** Doors can be on any wall. You always enter through the wall opposite the one you left by, and there's no way back.
-- **Risky doors** glow red under a skull and say **HARD X2**: a tougher room, double shards, better blessings.
+- **One door, a new room every time.** Like Spooky's Jump Scare Mansion, each room has a single way forward, but the room behind it is generated as you walk in. The exit can be on any wall, and there's no way back.
 - **Room types:** combat, ambush (most torches out), light-rune and memory-rune puzzles, blessing altars, shrines, and a boss every 10 rooms. Furniture, pits, water and layouts change from room to room.
-- **Your light is your power.** Hold **J** to gather it and release to fire a **light bolt**. Each bolt spends light, and less light means a smaller glow around you. Light comes back between fights, from motes and at shrines.
+- **Your light is your life.** Every hit costs half a heart, and as your hearts drain, your glow shrinks and the dark (and what lives in it) closes in. Motes heal half a heart, and shrines heal a full one.
 - **Slash enemy orbs** to send them back.
 - **Secret rooms:** some walls have cracks you only notice up close, in your light. Behind them is the Verdant Hollow and a green key.
 - **Between runs:** shards are kept when you die, and you spend them at the **Altar of Dawn** on permanent upgrades. Every death also offers a **gift** for your next run. If you keep dying, the gift doubles.
@@ -43,10 +42,10 @@ Choose a door, survive what's behind it, never go back. Four wings, twelve monst
 ### Wings and monsters
 | Wing | Monsters | Boss |
 |---|---|---|
-| **I. The Gilded Halls** | **Skitter** lunges · **Hollow Doll** freezes in your light and rushes you in the dark · **Gilded Sentinel** slams shockwaves (stun it with a bolt) | **The Hollow King** |
+| **I. The Gilded Halls** | **Skitter** lunges · **Hollow Doll** freezes in your light and rushes you in the dark · **Gilded Sentinel** slams shockwaves, then has to recover | **The Hollow King** |
 | **II. The Drowned Library** | **Leaflings** flutter in flocks · **Ink Lurker** hides as a puddle · **Weeper** hurls ink from afar | **The Archivist** |
 | **III. The Bone Garden** | **Bone Hound** circles and bites · **Rootling** burrows under you · **Thorn Bloom** spits thorns in every direction | **The Gardener** |
-| **IV. The Sunless Spire** | **Shade** is invisible outside your light · **Eclipse Eye** drains your light, then fires a beam · **The Hollow Self** is your reflection | **The Hollow Crown** |
+| **IV. The Sunless Spire** | **Shade** is invisible outside your light · **Eclipse Eye** stares, then fires a beam · **The Hollow Self** is your reflection | **The Hollow Crown** |
 
 Beat the Hollow Crown to see the ending, then keep going into an endless, harder castle.
 
@@ -54,7 +53,7 @@ Beat the Hollow Crown to see the ending, then keep going into an endless, harder
 | Action | Keyboard | Gamepad |
 |---|---|---|
 | Move | **WASD** / Arrow keys | Left stick / D-pad |
-| Slash (tap) / light bolt (hold, release) | **J** or Z | X / Square |
+| Slash | **J** or Z | X / Square |
 | Dash | **K**, X, Space or Shift | A / Cross, RB |
 | Use, pray, take a blessing | **E** | Y / Triangle |
 | Pause | **Esc** or P | Start |

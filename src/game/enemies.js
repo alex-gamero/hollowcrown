@@ -116,7 +116,7 @@
     drawGlow(ctx) { if (this.spawnT <= 0.35) HC.sprites.draw(ctx, this.sprite(), this.x, this.y, 'base', this.flip, 0.14); super.drawGlow(ctx); }
   }
 
-  // Slow armored sentinel: winds up, then slams a shockwave. A light bolt stuns it.
+  // Slow armored sentinel: winds up, then slams a shockwave, then needs a moment to recover.
   class Armor extends Enemy {
     constructor(x, y, tier) { super(x, y, { hp: 6 + tier * 2, frames: HC.art.armor, w: 14, h: 6, heavy: 4 }); this.state = 'walk'; this.timer = 2; this.tier = tier; this.bloodColors = ['#a8a2c0', '#6a6480', '#d9b050']; }
     update(dt, g) {
@@ -131,6 +131,7 @@
           this.state = 'walk'; this.timer = 2.4 - Math.min(1, this.tier * 0.25);
           g.addWave(this.x, this.y - 2, 78 + this.tier * 8, 150);
           g.shake(4, 0.25); HC.audio.play('slam');
+          this.stun = 1.0; // open to attack right after the slam
         }
       }
     }
@@ -317,7 +318,7 @@
     drawGlow(ctx) { if (this.spawnT <= 0) HC.sprites.draw(ctx, this.sprite(), this.x, this.y, 'glow', this.flip, 0.35 + this.vis * 0.65); }
   }
 
-  // Eclipse Eye: stares (draining your light), then fires a beam.
+  // Eclipse Eye: stares, then fires a beam.
   class Eye extends Enemy {
     constructor(x, y, tier) { super(x, y, { hp: 4 + tier, frames: HC.art.eye, w: 12, h: 6, flying: true, contact: 1 }); this.state = 'drift'; this.timer = 1.5 + Math.random(); this.tier = tier; this.aim = 0; this.bloodColors = ['#5b3fd0', '#9a7cff', '#e8e0f0']; }
     update(dt, g) {
@@ -330,7 +331,6 @@
         if (this.timer <= 0) { this.state = 'stare'; this.timer = 1.0; HC.audio.play('charge'); }
       } else if (this.state === 'stare') {
         this.aim = Math.atan2(dy, dx); this.frame = 1;
-        g.run.light = Math.max(0, g.run.light - 14 * dt);
         if (this.timer <= 0) { this.state = 'fire'; this.timer = 0.35; HC.audio.play('beam'); }
       } else if (this.state === 'fire') {
         const ex = this.x, ey = this.y - 14, ux = Math.cos(this.aim), uy = Math.sin(this.aim);

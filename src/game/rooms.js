@@ -218,10 +218,9 @@
       const wall = entryWall === 'N' ? 'E' : 'N';
       room.doors.push(Object.assign(wall === 'N' ? { wall, x: HC.W / 2 } : placeDoor(rng, wall, [room.entryDoor]), { risky: false }));
     } else {
-      const walls = rng.shuffle(['N', 'E', 'W', 'S'].filter((w) => w !== entryWall));
-      const n = rng() < 0.4 ? 1 : rng() < 0.75 ? 2 : 3;
-      for (let i = 0; i < n; i++) { const d = placeDoor(rng, walls[i], room.doors.concat([room.entryDoor])); if (d) room.doors.push(Object.assign(d, { risky: false })); }
-      if (room.doors.length > 1 && rng() < 0.65) rng.pick(room.doors).risky = true;
+      // one way forward, on a random wall (never the one you came in by)
+      const wall = rng.pick(['N', 'N', 'E', 'W', 'S'].filter((w) => w !== entryWall));
+      room.doors.push(Object.assign(placeDoor(rng, wall, [room.entryDoor]), { risky: false }));
     }
 
     // a hidden passage to the green room (at most once per wing)
@@ -269,7 +268,7 @@
       }
     }
     if (type === 'treasure') {
-      const picks = rng.shuffle(HC.BLESSINGS.filter((b) => !(b.id === 'mend' && run.hp === run.maxHp))).slice(0, risky ? 4 : 3);
+      const picks = rng.shuffle(HC.BLESSINGS.filter((b) => !(b.id === 'mend' && run.hp === run.maxHp))).slice(0, 3);
       const n = picks.length, y = (R.floorTop + R.floorBottom) / 2 - 4;
       room.offers = picks.map((b, i) => ({ blessing: b, x: HC.W / 2 + (i - (n - 1) / 2) * 64, y, taken: false }));
       room.obstacles = room.obstacles.filter((o) => !room.offers.some((f) => HC.dist(f.x, f.y, o.x, o.y) < 40));
