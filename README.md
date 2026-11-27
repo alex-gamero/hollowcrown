@@ -14,8 +14,6 @@ One door at a time, every room different. Four wings, twelve monsters, four boss
 ![Canvas](https://img.shields.io/badge/Canvas_2D-1a1424?style=for-the-badge&logo=html5&logoColor=ffd650)
 ![Web Audio](https://img.shields.io/badge/Web_Audio-5A0FC8?style=for-the-badge&logo=audacity&logoColor=white)
 
-![Demo of Hollowcrown: the princess clears two rooms in the Gilded Halls](docs/demo.gif)
-
 </div>
 
 ---
