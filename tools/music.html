@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hollowcrown music options</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@900&family=Cinzel:wght@600;700&family=Inter:wght@400;500&display=swap">
+<style>
+/* VOICE: a game's sound test menu, warm and a little haunted
+   IDEA: the music room of the castle, three candlelit pedestals
+   PICTURE: the sun emblem breathing with the music, a live waveform under it
+   COLOUR and TYPE: night violet ground, sun gold accent, Cinzel titles, Inter body
+   LAYOUT: emblem + waveform first, then three tracks in a row, stacked on phones */
+:root{color-scheme:dark;--bg:#0b0714;--panel:#160e22;--line:#2e2040;--ink:#efe3c8;--soft:#a898b8;--gold:#ffd650;--gold2:#e09a2a}
+html{background:#0b0714}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:radial-gradient(1200px 600px at 50% -10%,#3a1e2c 0%,#160c22 45%,var(--bg) 75%) fixed;color:var(--ink);font:16px/1.55 Inter,system-ui,sans-serif;overflow-x:clip}
+.band{padding:clamp(28px,4vw,56px) max(5vw,16px);max-width:1100px;margin:0 auto}
+.hero{display:grid;justify-items:center;text-align:center;gap:8px}
+.sun{width:min(150px,36vw);image-rendering:pixelated;filter:drop-shadow(0 0 24px rgba(255,190,80,.55));transition:transform .12s ease-out}
+h1{font:900 clamp(30px,6vw,52px)/1.05 'Cinzel Decorative',serif;margin:6px 0 0;color:var(--gold);text-shadow:0 0 22px rgba(255,170,60,.5);text-wrap:balance}
+.lead{color:var(--soft);max-width:60ch;margin:4px auto 0}
+.fig{position:relative;height:90px;width:min(640px,100%);margin:18px auto 0}
+.fig canvas{position:absolute;inset:0;width:100%;height:100%}
+.now{font:600 15px Cinzel,serif;color:var(--gold);min-height:22px;margin-top:6px}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+@media(max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}}
+.card{background:linear-gradient(180deg,#1c1230,var(--panel));border:1px solid var(--line);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:10px}
+.card.on{border-color:var(--gold2);box-shadow:0 0 0 1px var(--gold2),0 0 30px rgba(255,170,60,.18)}
+.tag{font-size:13px;color:var(--soft)}
+h2{font:700 22px/1.15 Cinzel,serif;margin:0;color:var(--ink)}
+.card p{margin:0;color:#d6c8e0}
+.meta{display:flex;flex-wrap:wrap;gap:6px}
+.meta span{font-size:13px;color:var(--soft);border:1px solid var(--line);border-radius:999px;padding:2px 10px;white-space:nowrap}
+button{margin-top:auto;min-height:44px;border-radius:10px;border:1px solid var(--gold2);background:transparent;color:var(--gold);font:600 16px Inter,sans-serif;cursor:pointer}
+button:hover{background:rgba(255,190,80,.08)}button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.card.on button{background:var(--gold);color:#2a1406;border-color:var(--gold)}
+.note{font-size:14px;color:var(--soft);text-align:center;margin-top:22px}
+@media (prefers-reduced-motion: reduce){.sun{transition:none}}
+</style></head><body>
+<section class="band hero">
+  <img class="sun" id="sun" alt="Hollowcrown sun emblem" src="data:image/png;base64,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">
+  <h1>Hollowcrown Music</h1>
+  <p class="lead">Three original themes, synthesized live in your browser the same way the game makes its sounds. Play each one and pick the one you want for the game.</p>
+  <div class="fig"><canvas id="wave"></canvas></div>
+  <div class="now" id="now"></div>
+</section>
+<section class="band">
+  <div class="grid" id="grid"></div>
+  <p class="note">They all loop. Headphones help. Once you pick one, I'll use it as the main theme and write title and boss versions in the same style.</p>
+</section>
+<script>// Tiny chiptune sequencer: songs are written as text patterns and synthesized live.
+(function (root) {
+  'use strict';
+  const HC = root.HC = root.HC || {};
+
+  const NOTE = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
+  function freq(tok) {
+    const m = /^([A-G])([#b]?)(-?\d)$/.exec(tok);
+    if (!m) return null;
+    const midi = 12 * (parseInt(m[3], 10) + 1) + NOTE[m[1]] + (m[2] === '#' ? 1 : m[2] === 'b' ? -1 : 0);
+    return 440 * Math.pow(2, (midi - 69) / 12);
+  }
+  // "D5 - F5 . A5+C6" -> [{f:[..], len}, ...] per step ("-" holds, "." rests)
+  function parse(str) {
+    const toks = str.trim().split(/\s+/), out = new Array(toks.length).fill(null);
+    toks.forEach((t, i) => {
+      if (t === '-' || t === '.') return;
+      let len = 1; while (toks[i + len] === '-') len++;
+      out[i] = { f: t.split('+').map(freq).filter(Boolean), len };
+    });
+    return out;
+  }
+
+  let ctx = null, master = null, delay = null, current = null, timer = null, muted = false;
+  const waves = {};
+  function ensure(existing) {
+    if (ctx) return ctx;
+    ctx = existing || new (root.AudioContext || root.webkitAudioContext)();
+    master = ctx.createGain(); master.gain.value = 0.55;
+    const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -18; comp.ratio.value = 4;
+    master.connect(comp); comp.connect(ctx.destination);
+    delay = ctx.createDelay(1); delay.delayTime.value = 0.36;
+    const fb = ctx.createGain(); fb.gain.value = 0.32;
+    const dl = ctx.createGain(); dl.gain.value = 0.35;
+    const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2600;
+    delay.connect(lp); lp.connect(fb); fb.connect(delay); lp.connect(dl); dl.connect(master);
+    // pulse waves with narrow duty cycles, the classic 8-bit lead sound
+    [0.125, 0.25].forEach((d) => {
+      const n = 32, re = new Float32Array(n), im = new Float32Array(n);
+      for (let k = 1; k < n; k++) im[k] = (2 / (k * Math.PI)) * Math.sin(k * Math.PI * d);
+      waves[d] = ctx.createPeriodicWave(re, im);
+    });
+    return ctx;
+  }
+
+  let noiseBuf = null;
+  function noise() {
+    if (noiseBuf) return noiseBuf;
+    noiseBuf = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
+    const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    return noiseBuf;
+  }
+
+  // ---------- instruments ----------
+  function env(g, t, a, peak, hold, rel) {
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(peak, t + a);
+    g.gain.setValueAtTime(peak, t + a + hold);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + a + hold + rel);
+    return t + a + hold + rel;
+  }
+  const INST = {
+    lead(f, t, dur, vol, send) {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.setPeriodicWave(waves[0.25]); o.frequency.value = f;
+      const vib = ctx.createOscillator(), vg = ctx.createGain(); vib.frequency.value = 5.5; vg.gain.value = f * 0.006;
+      vib.connect(vg); vg.connect(o.frequency);
+      const end = env(g, t, 0.01, vol, Math.max(0, dur - 0.06), 0.08);
+      o.connect(g); g.connect(master); if (send) g.connect(delay);
+      o.start(t); vib.start(t + 0.12); o.stop(end + 0.02); vib.stop(end + 0.02);
+    },
+    arp(f, t, dur, vol, send) {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.setPeriodicWave(waves[0.125]); o.frequency.value = f;
+      const end = env(g, t, 0.005, vol, 0.02, Math.min(0.25, dur));
+      o.connect(g); g.connect(master); if (send) g.connect(delay);
+      o.start(t); o.stop(end + 0.02);
+    },
+    bass(f, t, dur, vol) {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = 'triangle'; o.frequency.value = f;
+      const end = env(g, t, 0.005, vol, Math.max(0, dur - 0.05), 0.06);
+      o.connect(g); g.connect(master); o.start(t); o.stop(end + 0.02);
+    },
+    bell(f, t, dur, vol, send) {
+      [[1, 1], [2.76, 0.35], [5.4, 0.12]].forEach(([m, a]) => {
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.type = 'sine'; o.frequency.value = f * m;
+        const end = env(g, t, 0.003, vol * a, 0, 1.2 / m + dur * 0.4);
+        o.connect(g); g.connect(master); if (send) g.connect(delay);
+        o.start(t); o.stop(end + 0.02);
+      });
+    },
+    pad(f, t, dur, vol) {
+      const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 900;
+      const g = ctx.createGain();
+      const end = env(g, t, Math.min(0.6, dur * 0.4), vol, dur * 0.5, 0.8);
+      [-6, 6].forEach((c) => { const o = ctx.createOscillator(); o.type = 'sawtooth'; o.frequency.value = f; o.detune.value = c; o.connect(lp); o.start(t); o.stop(end + 0.02); });
+      lp.connect(g); g.connect(master); g.connect(delay);
+    },
+  };
+  const DRUM = {
+    k(t, v) { const o = ctx.createOscillator(), g = ctx.createGain(); o.frequency.setValueAtTime(150, t); o.frequency.exponentialRampToValueAtTime(40, t + 0.12); env(g, t, 0.002, v, 0.02, 0.14); o.connect(g); g.connect(master); o.start(t); o.stop(t + 0.2); },
+    s(t, v) {
+      const s = ctx.createBufferSource(); s.buffer = noise(); const f = ctx.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 1800; f.Q.value = 0.8;
+      const g = ctx.createGain(); env(g, t, 0.002, v * 0.8, 0.01, 0.12); s.connect(f); f.connect(g); g.connect(master); s.start(t); s.stop(t + 0.2);
+    },
+    h(t, v) {
+      const s = ctx.createBufferSource(); s.buffer = noise(); const f = ctx.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = 7000;
+      const g = ctx.createGain(); env(g, t, 0.001, v * 0.35, 0, 0.04); s.connect(f); f.connect(g); g.connect(master); s.start(t); s.stop(t + 0.08);
+    },
+  };
+
+  // ---------- songs (all original) ----------
+  const SONGS = {
+    // Option A: a driving 8-bit adventure loop
+    halls: {
+      name: 'Halls of Dusk', bpm: 132, spb: 2,
+      tracks: [
+        { inst: 'lead', vol: 0.09, send: true, notes:
+          'D5 - F5 - A5 - G5 F5  F5 - D5 - Bb4 - C5 D5  E5 - C5 - G4 - A4 Bb4  C#5 - A4 - E5 - - -  ' +
+          'D5 - F5 - A5 - D6 C6  Bb5 - A5 - G5 - F5 G5  A5 - G5 F5 E5 - C#5 -  D5 - - - . . . .' },
+        { inst: 'bass', vol: 0.2, notes:
+          'D2 D3 D2 D3 D2 D3 D2 D3  Bb1 Bb2 Bb1 Bb2 Bb1 Bb2 Bb1 Bb2  C2 C3 C2 C3 C2 C3 C2 C3  A1 A2 A1 A2 A1 A2 A1 A2  ' +
+          'D2 D3 D2 D3 D2 D3 D2 D3  Bb1 Bb2 Bb1 Bb2 Bb1 Bb2 Bb1 Bb2  A1 A2 A1 A2 A1 A2 A1 A2  D2 D3 D2 D3 D2 D3 D2 D3' },
+        { inst: 'arp', vol: 0.035, send: true, notes:
+          'D4 F4 A4 F4 D4 F4 A4 F4  Bb3 D4 F4 D4 Bb3 D4 F4 D4  C4 E4 G4 E4 C4 E4 G4 E4  A3 C#4 E4 C#4 A3 C#4 E4 C#4  ' +
+          'D4 F4 A4 F4 D4 F4 A4 F4  Bb3 D4 F4 D4 Bb3 D4 F4 D4  A3 C#4 E4 C#4 A3 C#4 E4 C#4  D4 F4 A4 F4 D4 . . .' },
+      ],
+      drums: { k: 'x...x...', s: '..x...x.', h: 'xxxxxxxx', vol: 0.5 },
+    },
+    // Option B: a music-box waltz, sad and royal
+    waltz: {
+      name: 'The Hollow Waltz', bpm: 92, spb: 2,
+      tracks: [
+        { inst: 'bell', vol: 0.13, send: true, notes:
+          'E5 - A4 C5 E5 D5  C5 - B4 A4 B4 C5  A4 - F4 A4 C5 B4  B4 - G#4 B4 E5 -  ' +
+          'E5 - A4 C5 E5 G5  F5 - E5 D5 C5 D5  E5 - D5 C5 B4 G#4  A4 - - - - -' },
+        { inst: 'pad', vol: 0.03, notes:
+          'A3+C4+E4 - - - - -  A3+C4+E4 - - - - -  F3+A3+C4 - - - - -  E3+G#3+B3 - - - - -  ' +
+          'A3+C4+E4 - - - - -  F3+A3+D4 - - - - -  E3+G#3+B3 - - - - -  A3+C4+E4 - - - - -' },
+        { inst: 'bass', vol: 0.16, notes:
+          'A2 - - . E3 .  A2 - - . E3 .  F2 - - . C3 .  E2 - - . B2 .  A2 - - . E3 .  D2 - - . A2 .  E2 - - . B2 .  A2 - - - - -' },
+      ],
+      drums: null,
+    },
+    // Option C: slow, eerie candlelight arpeggios
+    candles: {
+      name: 'Candles in the Deep', bpm: 76, spb: 2,
+      tracks: [
+        { inst: 'arp', vol: 0.05, send: true, notes:
+          'E3 B3 E4 G4 B4 G4 E4 B3  C3 G3 C4 E4 G4 E4 C4 G3  A2 E3 A3 C4 E4 C4 A3 E3  B2 F#3 B3 D#4 F#4 D#4 B3 F#3  ' +
+          'E3 B3 E4 G4 B4 G4 E4 B3  C3 G3 C4 E4 G4 E4 C4 G3  A2 E3 A3 C4 E4 C4 A3 E3  B2 F#3 B3 D#4 F#4 D#4 B3 F#3' },
+        { inst: 'bell', vol: 0.09, send: true, notes:
+          'B5 - - - G5 - - -  E5 - - - - - G5 -  A5 - - - C6 - B5 -  F#5 - - - - - - -  ' +
+          'B5 - - - D6 - - -  C6 - B5 - G5 - - -  A5 - G5 - F#5 - E5 -  D#5 - - - - - - -' },
+        { inst: 'bass', vol: 0.13, notes:
+          'E2 - - - - - - -  C2 - - - - - - -  A1 - - - - - - -  B1 - - - - - - -  E2 - - - - - - -  C2 - - - - - - -  A1 - - - - - - -  B1 - - - - - - -' },
+      ],
+      drums: { k: 'x..x....', s: '........', h: '........', vol: 0.35 },
+    },
+  };
+  Object.values(SONGS).forEach((s) => { s.parsed = s.tracks.map((t) => Object.assign({}, t, { steps: parse(t.notes) })); s.len = Math.max(...s.parsed.map((t) => t.steps.length)); });
+
+  function play(id, audioCtx) {
+    ensure(audioCtx);
+    if (ctx.state === 'suspended') ctx.resume();
+    stop();
+    const song = SONGS[id]; if (!song) return;
+    const stepDur = 60 / song.bpm / song.spb;
+    let step = 0, next = ctx.currentTime + 0.08;
+    current = id;
+    const gain = muted ? 0 : 1;
+    timer = setInterval(() => {
+      while (next < ctx.currentTime + 0.15) {
+        const s = step % song.len;
+        for (const t of song.parsed) { const n = t.steps[s]; if (n && gain) n.f.forEach((f) => INST[t.inst](f, next, n.len * stepDur, t.vol, t.send)); }
+        if (song.drums && gain) { const d = song.drums, i = s % d.k.length; ['k', 's', 'h'].forEach((k) => { if (d[k][i] === 'x') DRUM[k](next, d.vol); }); }
+        step++; next += stepDur;
+      }
+    }, 25);
+  }
+  function stop() { if (timer) clearInterval(timer); timer = null; current = null; }
+
+  HC.music = { play, stop, songs: SONGS, get output() { return master; }, get current() { return current; }, setMuted(m) { muted = m; if (m) stop(); } };
+})(typeof window !== 'undefined' ? window : this);
+</script>
+<script>
+{
+const INFO = [
+  { id: 'halls', label: 'A', mood: 'Adventure, 8-bit', desc: 'A driving chiptune loop: pulse lead, octave-bouncing bass and drums. The closest to a classic arcade adventure, built for running from room to room.', tags: ['D minor', '132 BPM', 'Drums'] },
+  { id: 'waltz', label: 'B', mood: 'Music box, royal and sad', desc: 'A slow 3/4 waltz on music-box bells over a soft pad. Feels like a ballroom nobody has danced in for a hundred years.', tags: ['A minor', '92 BPM', 'Waltz'] },
+  { id: 'candles', label: 'C', mood: 'Eerie, candlelit', desc: 'Echoing arpeggios with a few high bell notes and a heartbeat kick. The darkest and most atmospheric of the three.', tags: ['E minor', '76 BPM', 'Ambient'] },
+];
+const grid = document.getElementById('grid'), now = document.getElementById('now'), sun = document.getElementById('sun');
+grid.innerHTML = INFO.map((s) => `<article class="card" id="c-${s.id}"><div class="tag">Option ${s.label} · ${s.mood}</div><h2>${HC.music.songs[s.id].name}</h2><p>${s.desc}</p><div class="meta">${s.tags.map((t) => `<span>${t}</span>`).join('')}</div><button type="button" data-id="${s.id}">Play</button></article>`).join('');
+let ctx = null, analyser = null, playing = null;
+function setUI() {
+  INFO.forEach((s) => { const c = document.getElementById('c-' + s.id); c.classList.toggle('on', playing === s.id); c.querySelector('button').textContent = playing === s.id ? 'Stop' : 'Play'; });
+  now.textContent = playing ? 'Now playing: ' + HC.music.songs[playing].name : '';
+}
+grid.addEventListener('click', (e) => {
+  const b = e.target.closest('button'); if (!b) return;
+  try {
+    if (!ctx) { ctx = new (window.AudioContext || window.webkitAudioContext)(); }
+    const id = b.dataset.id;
+    if (playing === id) { HC.music.stop(); playing = null; }
+    else {
+      HC.music.play(id, ctx); playing = id;
+      if (!analyser) { analyser = ctx.createAnalyser(); analyser.fftSize = 1024; HC.music.output.connect(analyser); }
+    }
+  } catch (err) { now.textContent = 'Audio could not start in this browser.'; }
+  setUI();
+});
+const cv = document.getElementById('wave'), g = cv.getContext('2d');
+let buf = null;
+function draw() {
+  const W = cv.clientWidth, H = cv.clientHeight, dpr = window.devicePixelRatio || 1;
+  if (cv.width !== W * dpr) { cv.width = W * dpr; cv.height = H * dpr; }
+  g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
+  g.strokeStyle = 'rgba(255,214,80,.85)'; g.lineWidth = 2; g.shadowColor = 'rgba(255,170,60,.8)'; g.shadowBlur = 10;
+  g.beginPath();
+  let level = 0;
+  if (analyser && playing) {
+    if (!buf) buf = new Uint8Array(analyser.fftSize);
+    analyser.getByteTimeDomainData(buf);
+    for (let i = 0; i < buf.length; i++) { const v = (buf[i] - 128) / 128; level = Math.max(level, Math.abs(v)); const x = (i / (buf.length - 1)) * W, y = H / 2 + v * H * 0.9; i ? g.lineTo(x, y) : g.moveTo(x, y); }
+  } else { g.moveTo(0, H / 2); g.lineTo(W, H / 2); g.strokeStyle = 'rgba(255,214,80,.25)'; }
+  g.stroke();
+  sun.style.transform = 'scale(' + (1 + Math.min(0.12, level * 0.25)) + ')';
+  requestAnimationFrame(draw);
+}
+requestAnimationFrame(draw);
+}
+</script></body></html>

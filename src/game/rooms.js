@@ -24,7 +24,7 @@
   const POOLS = [
     [['skitter', 1], ['doll', 2], ['armor', 3]],
     [['page', 2], ['ink', 2], ['weeper', 2]],
-    [['hound', 2], ['root', 2], ['bloom', 2]],
+    [['hound', 3], ['root', 2], ['bloom', 2]],
     [['shade', 2], ['eye', 2], ['self', 3]],
   ];
   const BOSSES = ['king', 'archivist', 'gardener', 'crown'];
@@ -241,7 +241,7 @@
     // content
     if (type === 'combat' || type === 'ambush') {
       const pos = number % 10;
-      let budget = Math.min(10, 2 + Math.floor(pos / 2) + tier * 2 + (type === 'ambush' ? 1 : 0));
+      let budget = Math.min(10, 3 + Math.floor(pos / 2) + tier + (type === 'ambush' ? 1 : 0));
       const pool = POOLS[wing].filter((p, i) => pos >= 4 || i < 2 || zone >= 4);
       while (budget > 0) {
         const [kind, cost] = rng.pick(pool);

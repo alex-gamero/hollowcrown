@@ -228,20 +228,26 @@
       const p = g.player;
       this.timer -= dt;
       if (this.state === 'circle') {
-        this.ang += dt * 1.6 * this.dir;
-        const tx = p.x + Math.cos(this.ang) * 70, ty = p.y + Math.sin(this.ang) * 50;
-        const dx = tx - this.x, dy = ty - this.y, l = Math.hypot(dx, dy) || 1, sp = Math.min(120, l * 3);
+        this.ang += dt * 1.1 * this.dir;
+        const tx = p.x + Math.cos(this.ang) * 75, ty = p.y + Math.sin(this.ang) * 55;
+        const dx = tx - this.x, dy = ty - this.y, l = Math.hypot(dx, dy) || 1, sp = Math.min(85, l * 2);
         if (!g.moveEntity(this, (dx / l) * sp * dt, (dy / l) * sp * dt)) this.dir *= -1;
         this.flip = dx < 0; this.animate(dt, 0.1);
-        if (this.timer <= 0) { this.state = 'crouch'; this.timer = 0.35; this.flip = p.x < this.x; }
+        if (this.timer <= 0) { this.state = 'crouch'; this.timer = 0.6; this.flip = p.x < this.x; HC.audio.play('bark'); }
       } else if (this.state === 'crouch') {
-        if (this.timer <= 0) { this.state = 'bite'; this.timer = 0.35; const dx = p.x - this.x, dy = p.y - this.y, l = Math.hypot(dx, dy) || 1; this.bd = [dx / l, dy / l]; HC.audio.play('bark'); }
+        if (this.timer <= 0) { this.state = 'bite'; this.timer = 0.32; const dx = p.x - this.x, dy = p.y - this.y, l = Math.hypot(dx, dy) || 1; this.bd = [dx / l, dy / l]; }
       } else {
         this.animate(dt, 0.05);
-        if (!g.moveEntity(this, this.bd[0] * 230 * dt, this.bd[1] * 230 * dt) || this.timer <= 0) { this.state = 'circle'; this.timer = 1.6 + Math.random() - this.tier * 0.1; this.ang = Math.atan2(this.y - p.y, this.x - p.x); }
+        if (!g.moveEntity(this, this.bd[0] * 200 * dt, this.bd[1] * 200 * dt) || this.timer <= 0) { this.state = 'circle'; this.timer = 2 + Math.random(); this.ang = Math.atan2(this.y - p.y, this.x - p.x); }
       }
     }
     draw(ctx) { const ox = this.state === 'crouch' ? Math.round((Math.random() - 0.5) * 2) : 0; this.x += ox; super.draw(ctx); this.x -= ox; }
+    drawGlow(ctx) {
+      super.drawGlow(ctx);
+      if (this.state === 'crouch' && Math.floor(this.timer * 10) % 2 === 0) {
+        ctx.fillStyle = '#ff3a4a'; ctx.fillRect(Math.round(this.x - 1), Math.round(this.y - 22), 2, 5); ctx.fillRect(Math.round(this.x - 1), Math.round(this.y - 15), 2, 2);
+      }
+    }
   }
 
   // Rootling: travels underground as a mound, then bursts up beneath you.
@@ -253,12 +259,12 @@
       const p = g.player;
       this.timer -= dt;
       if (this.state === 'under') {
-        this.toward(g, 58 + this.tier * 6, dt);
+        this.toward(g, 42 + this.tier * 4, dt);
         if (Math.random() < 0.3) g.particles.add({ x: this.x + (Math.random() - 0.5) * 8, y: this.y - 1, vy: -10, life: 0.4, color: '#5a4026', glow: false });
-        if (this.timer <= 0 || HC.dist(p.x, p.y, this.x, this.y) < 8) { this.state = 'warn'; this.timer = 0.5; }
+        if (this.timer <= 0 || HC.dist(p.x, p.y, this.x, this.y) < 8) { this.state = 'warn'; this.timer = 0.85; }
       } else if (this.state === 'warn') {
         if (this.timer <= 0) {
-          this.state = 'up'; this.timer = 1.6;
+          this.state = 'up'; this.timer = 2.3;
           if (HC.dist(p.x, p.y, this.x, this.y) < 16) p.hurt(g, this.x, this.y + 4);
           g.particles.burst(this.x, this.y - 4, 12, { color: ['#5a4026', '#3a2a18'], speed: 70, life: 0.4, glow: false, up: 30 });
           g.shake(2, 0.12); HC.audio.play('slam');
@@ -272,14 +278,24 @@
       if (this.spawnT > 0 && Math.random() > 1 - this.spawnT / 0.7) return;
       if (this.state === 'under') { HC.sprites.draw(ctx, HC.art.mound, this.x, this.y + 1); return; }
       if (this.state === 'warn') {
+        // a widening ring of cracks marks where it will burst out
+        const k = 1 - this.timer / 0.85;
         ctx.fillStyle = '#1a120a';
-        for (let i = 0; i < 6; i++) { const a = (i / 6) * Math.PI * 2 + 0.4; ctx.fillRect(Math.round(this.x + Math.cos(a) * 7), Math.round(this.y - 2 + Math.sin(a) * 3), 2, 1); }
+        for (let i = 0; i < 10; i++) { const a = (i / 10) * Math.PI * 2 + 0.4; ctx.fillRect(Math.round(this.x + Math.cos(a) * (6 + k * 8)), Math.round(this.y - 2 + Math.sin(a) * (3 + k * 4)), 2, 1); }
         HC.sprites.draw(ctx, HC.art.mound, this.x + (Math.random() < 0.5 ? 1 : -1), this.y + 1);
         return;
       }
       super.draw(ctx);
     }
-    drawGlow(ctx) { if (this.state === 'up') super.drawGlow(ctx); }
+    drawGlow(ctx) {
+      if (this.state === 'up') super.drawGlow(ctx);
+      if (this.state === 'warn') {
+        const k = 1 - this.timer / 0.85;
+        ctx.fillStyle = Math.floor(this.timer * 12) % 2 ? '#d8ff6a' : '#8aa040';
+        for (let i = 0; i < 16; i++) { const a = (i / 16) * Math.PI * 2; ctx.fillRect(Math.round(this.x + Math.cos(a) * 15), Math.round(this.y - 2 + Math.sin(a) * 7), 1, 1); }
+        if (k > 0.5) { ctx.fillStyle = '#d8ff6a'; ctx.fillRect(Math.round(this.x - 1), Math.round(this.y - 4), 2, 2); }
+      }
+    }
   }
 
   // Thorn Bloom: rooted in place, spits thorns in every direction.

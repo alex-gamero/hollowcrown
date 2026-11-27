@@ -45,6 +45,8 @@
       this.enemies = room.enemies.map((e, i) => { const en = this.makeEnemy(e.kind, e.x, e.y, room.tier); en.spawnT += i * 0.12; return en; });
       this.projectiles = []; this.pickups = []; this.waves = []; this.floaters = []; this.particles.clear();
       this.roomTime = 0; this.hinted = false; this.nearOffer = null; this.nearShrine = false;
+      if (!run.rootTip && this.enemies.some((e) => e instanceof HC.ENEMIES.root)) { run.rootTip = true; this.toastMsg('ROOTLINGS BURROW TOWARD YOU - STEP AWAY FROM THE CRACKS, HIT THEM WHEN THEY RISE', '#d8ff6a', 5); }
+      if (!run.houndTip && this.enemies.some((e) => e instanceof HC.ENEMIES.hound)) { run.houndTip = true; this.toastMsg('BONE HOUNDS CROUCH BEFORE THEY BITE - DASH WHEN THEIR EYES FLASH', '#ff8a8a', 5); }
       HC.audio.setDroneRoot(this.theme.drone);
       if (room.type === 'secret') this.banner = { title: 'THE VERDANT HOLLOW', sub: 'A ROOM THE CASTLE FORGOT', t: 3, color: '#5aff8a' };
       else if (number % 10 === 1) this.banner = { title: this.theme.name, sub: 'WING ' + ROMAN[room.zone % 12], t: 3.2 };
@@ -118,7 +120,7 @@
       run.kills++;
       const shards = e.isBoss ? 25 : Math.random() < 0.7 ? 1 + (this.room.risky ? 1 : 0) : 0;
       for (let i = 0; i < shards; i++) this.dropPickup('shard', e.x, e.y - 8);
-      if (Math.random() < 0.22 || e.isBoss) this.dropPickup('mote', e.x, e.y - 8);
+      if (Math.random() < 0.1 || e.isBoss) this.dropPickup('mote', e.x, e.y - 8);
       if (Math.random() < (this.room.risky ? 0.1 : 0.05) || e.isBoss) this.dropPickup('heart', e.x, e.y - 8);
       if (e.isBoss) { HC.save.kingsSlain++; HC.meta.save(); }
     }
